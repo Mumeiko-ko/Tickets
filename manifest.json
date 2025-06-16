@@ -17,12 +17,26 @@
   "action": {
     "default_popup": "popup.html",
     "default_icon": "bird.png"
-  },
-  "content_scripts": [ 
+  },  "content_scripts": [ 
     {
-      "matches": ["https://tixcraft.com/*"], 
+      "matches": [
+        "https://tixcraft.com/*",
+        "https://kktix.com/*",
+        "https://tickets.books.com.tw/*",
+        "https://cityline.com/*",
+        "https://famiticket.com.tw/*",
+        "https://ticket.com.tw/*",
+        "https://urbtix.hk/*"
+      ], 
       "js": ["content.js"],
-      "run_at": "document_idle" 
+      "run_at": "document_idle",
+      "exclude_matches": [
+        "https://www.ticketmaster.com/*",
+        "https://ticketmaster.com/*",
+        "https://*.ticketmaster.com/*",
+        "https://www.ticketmaster.com.au/*",
+        "https://ticketmaster.com.au/*"
+      ]
     }
   ]
 }

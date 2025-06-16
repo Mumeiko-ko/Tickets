@@ -314,35 +314,116 @@ async function imageUrlToBase64(url) {
 async function handleAreaPage(config) {
     console.log(`[區域頁] 正在尋找關鍵字為 "${config.areaKeyword}" 且可購買的場區...`);
 
-    // 1. 我們直接尋找所有可點擊的區域連結 (<a>)。
-    //    拓元的結構通常是 li.select_form_b > a
-    const allAreaLinks = await waitForElement('li.select_form_b a');
-    if (!allAreaLinks) {
-        console.error("[區域頁] 找不到任何場區連結元素 (li.select_form_b a)。");
-        chrome.storage.local.remove('ticketConfig');
-        return;
-    }
+    // 多種選擇器，提高適配性
+    const selectors = [
+        'li.select_form_b a',  // 原始選擇器
+        'li.select_form_a a',  // 新發現的結構
+        '.zone.area-list li a', // 更具體的選擇器
+        '.area-list a',        // 簡化選擇器
+        'li[class*="select_form"] a', // 模糊匹配
+        '.select_form_a a',    // 直接類別選擇器
+        'ul[id*="group"] li a' // ID包含group的ul下的a標籤
+    ];
 
-    const allClickableElements = document.querySelectorAll('li.select_form_b a');
+    let allClickableElements = [];
 
-    // 2. 遍歷所有找到的連結元素
-    for (const linkElement of allClickableElements) {
-        const fullText = linkElement.textContent || ""; // 獲取 <a> 標籤內所有文字
-
-        // 3. 條件判斷
-        const isKeywordMatch = fullText.includes(config.areaKeyword);
-        const isAvailable = !fullText.includes("已售完") && !fullText.includes("Sold Out");
-
-        // 4. 如果條件符合，點擊這個 <a> 標籤並結束
-        if (isKeywordMatch && isAvailable) {
-            console.log(`[區域頁] 找到目標場區: ${fullText.trim()}，正在點擊連結...`);
-            linkElement.click(); // <-- 點擊的是 <a> 標籤，而不是 li
-            return; // 成功點擊，結束函式
+    // 嘗試多種選擇器找到可點擊元素
+    for (const selector of selectors) {
+        console.log(`[區域頁] 嘗試選擇器: ${selector}`);
+        const elements = document.querySelectorAll(selector);
+        if (elements.length > 0) {
+            console.log(`[區域頁] 找到 ${elements.length} 個元素，使用選擇器: ${selector}`);
+            allClickableElements = Array.from(elements);
+            break;
         }
     }
 
-    // 如果迴圈跑完都沒找到
-    console.error(`[區域頁] 找不到關鍵字為 "${config.areaKeyword}" 且有票的場區。`);
+    // 如果都找不到，嘗試更廣泛的搜尋
+    if (allClickableElements.length === 0) {
+        console.log('[區域頁] 使用廣泛搜尋模式...');
+        const allLinks = document.querySelectorAll('a');
+        allClickableElements = Array.from(allLinks).filter(link => {
+            const text = link.textContent || '';
+            const hasPrice = /[\$￥¥]\d+|^\d+元|^\d+$/.test(text); // 包含價格格式
+            const hasArea = text.length > 2 && text.length < 50; // 合理的文字長度
+            return hasPrice || hasArea;
+        });
+        console.log(`[區域頁] 廣泛搜尋找到 ${allClickableElements.length} 個可能的連結`);
+    } if (allClickableElements.length === 0) {
+        console.error("[區域頁] 找不到任何場區連結元素，嘗試等待1秒後重試...");
+        await sleep(1000);
+        // 重新嘗試
+        const retryElements = document.querySelectorAll('a[href*="ticket"], a[onclick*="ticket"], a[onclick*="select"]');
+        if (retryElements.length > 0) {
+            allClickableElements = Array.from(retryElements);
+            console.log(`[區域頁] 重試找到 ${allClickableElements.length} 個連結`);
+        } else {
+            chrome.storage.local.remove('ticketConfig');
+            return;
+        }
+    }
+
+    // 遍歷所有找到的連結元素，優先匹配關鍵字
+    let foundMatches = [];
+    let availableBackups = []; for (const linkElement of allClickableElements) {
+        const fullText = linkElement.textContent || "";
+        const cleanText = fullText.replace(/\s+/g, ' ').trim();
+
+        // 移除詳細檢查日誌以提升速度
+
+        // 檢查是否可用（不包含售完標記）
+        const isAvailable = !fullText.includes("已售完") &&
+            !fullText.includes("Sold Out") &&
+            !fullText.includes("售完") &&
+            !fullText.includes("soldout") &&
+            !linkElement.classList.contains('disabled') &&
+            !linkElement.style.color.includes('red');
+
+        // 檢查關鍵字匹配（支持部分匹配）
+        const isKeywordMatch = config.areaKeyword.split(/[,，\s]+/).some(keyword =>
+            keyword && fullText.includes(keyword.trim())
+        );
+
+        if (isKeywordMatch && isAvailable) {
+            foundMatches.push({ element: linkElement, text: cleanText, priority: 1 });
+        } else if (isAvailable) {
+            availableBackups.push({ element: linkElement, text: cleanText, priority: 2 });
+        }
+    }
+
+    // 優先選擇關鍵字匹配的
+    let targetElement = null;
+    let targetText = '';
+
+    if (foundMatches.length > 0) {
+        // 如果有多個匹配，選擇第一個
+        targetElement = foundMatches[0].element;
+        targetText = foundMatches[0].text;
+        console.log(`[區域頁] 找到 ${foundMatches.length} 個關鍵字匹配，選擇: ${targetText}`);
+    } else if (availableBackups.length > 0) {
+        // 如果沒有關鍵字匹配，但有可用的選項
+        targetElement = availableBackups[0].element;
+        targetText = availableBackups[0].text;
+        console.log(`[區域頁] 沒有完全匹配，選擇第一個可用選項: ${targetText}`);
+    }
+
+    if (targetElement) {
+        console.log(`[區域頁] 準備點擊: ${targetText}`);
+
+        // 直接點擊元素，移除視覺效果以提升速度
+        console.log(`[區域頁] 點擊場區: ${targetText}`);
+        targetElement.click();
+
+        return;
+    }
+
+    // 如果都沒找到
+    console.error(`[區域頁] 找不到關鍵字為 "${config.areaKeyword}" 且有票的場區`);
+    console.log('[區域頁] 可用的場區選項:');
+    allClickableElements.forEach((el, index) => {
+        console.log(`  ${index + 1}. ${el.textContent?.trim()}`);
+    });
+
     // 清除設定以停止腳本
     chrome.storage.local.remove('ticketConfig');
 }
@@ -412,16 +493,8 @@ async function handleTicketPage(config) {
 async function handleSemiAutoMode(captchaInput) {
     console.log('[半自動模式] 等待您手動輸入驗證碼...');
 
-    // 高亮顯示驗證碼輸入框
-    captchaInput.style.border = '3px solid #00ff00';
-    captchaInput.style.boxShadow = '0 0 10px #00ff00';
-
-    // 等待用戶輸入驗證碼
+    // 等待用戶輸入驗證碼（移除高亮效果以提升速度）
     await waitForCaptcha(captchaInput, 4);
-
-    // 恢復原始樣式
-    captchaInput.style.border = '';
-    captchaInput.style.boxShadow = '';
 
     console.log(`[半自動模式] 已輸入驗證碼: ${captchaInput.value}，準備提交`);
 
@@ -652,9 +725,14 @@ async function mainRouter() {
                 console.log("[活動頁] 沒有可用的 '立即訂購' 按鈕。");
             }
         }
-    }
-    // 路由 2: 區域選擇頁
-    else if (url.includes('/ticket/area/')) {
+    }    // 路由 2: 區域選擇頁 (支持多種URL模式)
+    else if (url.includes('/ticket/area/') ||
+        url.includes('/activity/game/') ||
+        url.includes('/game/') ||
+        document.querySelector('.zone.area-list') ||
+        document.querySelector('li.select_form_a') ||
+        document.querySelector('li.select_form_b')) {
+        console.log("[區域頁] 偵測到區域選擇頁面");
         await handleAreaPage(config);
     }
     // 路由 3: 票券數量選擇頁
