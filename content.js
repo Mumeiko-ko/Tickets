@@ -1,6 +1,6 @@
 // content.js - 全新版本
 
-// ====== 即時訊息面板（右上角）+ 快速設定表單 ======
+// ====== 即時訊息面板======
 (function () {
     if (document.getElementById('ticket-helper-log')) return;
     const logDiv = document.createElement('div');
@@ -310,7 +310,7 @@ async function imageUrlToBase64(url) {
         reader.readAsDataURL(blob);
     });
 }
-// 流程函式：在「區域選擇頁」選擇場區 (更新版)
+// 流程函式：在「區域選擇頁」選擇場區
 async function handleAreaPage(config) {
     console.log(`[區域頁] 正在尋找關鍵字為 "${config.areaKeyword}" 且可購買的場區...`);
 
@@ -338,7 +338,7 @@ async function handleAreaPage(config) {
         }
     }
 
-    // 如果都找不到，嘗試更廣泛的搜尋
+    // 找不到會嘗試更廣泛的搜尋
     if (allClickableElements.length === 0) {
         console.log('[區域頁] 使用廣泛搜尋模式...');
         const allLinks = document.querySelectorAll('a');
@@ -368,8 +368,6 @@ async function handleAreaPage(config) {
     let availableBackups = []; for (const linkElement of allClickableElements) {
         const fullText = linkElement.textContent || "";
         const cleanText = fullText.replace(/\s+/g, ' ').trim();
-
-        // 移除詳細檢查日誌以提升速度
 
         // 檢查是否可用（不包含售完標記）
         const isAvailable = !fullText.includes("已售完") &&
@@ -428,7 +426,7 @@ async function handleAreaPage(config) {
     chrome.storage.local.remove('ticketConfig');
 }
 
-// 流程函式：在「票券數量頁」完成操作 (優化無限重試版)
+// 流程函式：在「票券數量頁」完成操作
 async function handleTicketPage(config) {
     console.log('[數量頁] 進入數量選擇頁面，開始快速自動化流程...');
 
@@ -463,7 +461,7 @@ async function handleTicketPage(config) {
             return;
         }
 
-        // 檢查是否已經有驗證碼內容（可能是手動輸入的）
+        // 檢查是否已經有驗證碼內容
         if (captchaInput.value && captchaInput.value.length >= 4) {
             console.log(`[數量頁] 發現已有驗證碼: ${captchaInput.value}，直接嘗試提交`);
             const confirmButton = Array.from(document.querySelectorAll('button.btn-primary'))
@@ -493,7 +491,7 @@ async function handleTicketPage(config) {
 async function handleSemiAutoMode(captchaInput) {
     console.log('[半自動模式] 等待您手動輸入驗證碼...');
 
-    // 等待用戶輸入驗證碼（移除高亮效果以提升速度）
+    // 等待用戶輸入驗證碼
     await waitForCaptcha(captchaInput, 4);
 
     console.log(`[半自動模式] 已輸入驗證碼: ${captchaInput.value}，準備提交`);
@@ -646,14 +644,13 @@ async function handleFullAutoMode(captchaInput) {
     }
 }
 
-
-// ====== 票券數量頁自動偵測與無限重跑功能 ======
+// ====== 票券數量頁自動偵測與重跑功能 ======
 (function () {
     let running = false;
     let lastSubmitTime = 0;
     const TICKET_PAGE_URL = '/ticket/ticket/';
-    const RETRY_INTERVAL = 500; // 縮短檢查間隔到0.5秒
-    const SUBMIT_COOLDOWN = 3000; // 提交後3秒冷卻時間
+    const RETRY_INTERVAL = 500; // 縮短檢查間隔0.5秒
+    const SUBMIT_COOLDOWN = 3000; // 提交後3秒冷卻
 
     async function tryAutoRunTicketPage() {
         if (window.location.pathname.includes(TICKET_PAGE_URL)) {
@@ -706,7 +703,6 @@ async function mainRouter() {
             console.log("[活動頁] 點擊 '立即購票'。");
             buyButton.click();
             // 點完後通常會有一個彈窗，裡面有「立即訂購」
-            // 由於彈窗是動態的，我們需要等待它
             await sleep(800); // 等待彈窗出現
             // 取得所有「立即訂購」按鈕，從上到下依序檢查
             const orderButtons = Array.from(document.querySelectorAll('button')).filter(
