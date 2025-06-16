@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>搶票設定</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            width: 250px;
+            padding: 10px;
+        }
+
+        div {
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input,
+        select {
+            width: 95%;
+            padding: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #00ff00;
+            color: rgba(0, 0, 0, 0.555);
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.7em;
+        }
+
+        button:hover {
+            background-color: #ff0000;
+        }
+    </style>
+</head>
+
+<body>
+    <h3>搶票小幫手設定</h3>
+    <div>
+        <label for="area-keyword">場區關鍵字:</label>
+        <input type="text" id="area-keyword" placeholder="例如：特A區 或 2樓...">
+    </div>
+    <div>
+        <label for="ticket-quantity">票券數量1~4:</label>
+        <select id="ticket-quantity">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+    </div>
+    <button id="start-button">戰爭開始</button>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>
