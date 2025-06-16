@@ -1,15 +1,22 @@
 {
   "manifest_version": 3,
-  "name": "無名子大王 (學習用)",
-  "version": "0.1",
-  "description": "一個協助自動化點擊流程的學習專案",
+  "name": "無名子自動搶票",
+  "version": "1.0",
+  "description": "使用於拓元售票網的自動化點擊工具",
+  "icons": {
+    "16": "bird.png",
+    "32": "bird.png",
+    "48": "bird.png",
+    "128": "bird.png"
+  },
   "permissions": [
     "activeTab",
     "scripting",
     "storage"  
   ],
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": "bird.png"
   },
   "content_scripts": [ 
     {

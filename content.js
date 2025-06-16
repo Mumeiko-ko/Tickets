@@ -4,41 +4,200 @@
 (function () {
     if (document.getElementById('ticket-helper-log')) return;
     const logDiv = document.createElement('div');
-    logDiv.id = 'ticket-helper-log';
-    logDiv.style.position = 'fixed';
+    logDiv.id = 'ticket-helper-log'; logDiv.style.position = 'fixed';
     logDiv.style.top = '16px';
     logDiv.style.right = '16px';
     logDiv.style.zIndex = '99999';
-    logDiv.style.background = 'rgba(30,30,30,0.92)';
+    logDiv.style.background = 'linear-gradient(135deg, rgba(20,20,20,0.95), rgba(35,35,35,0.95))';
+    logDiv.style.backdropFilter = 'blur(10px)';
+    logDiv.style.border = '2px solid rgba(255,255,255,0.1)';
     logDiv.style.color = '#fff';
-    logDiv.style.fontSize = '14px';
-    logDiv.style.maxWidth = '400px';
-    logDiv.style.maxHeight = '60vh';
+    logDiv.style.fontSize = '13px';
+    logDiv.style.fontFamily = 'Consolas, Monaco, "Courier New", monospace';
+    logDiv.style.width = '420px';
+    logDiv.style.maxHeight = '65vh';
     logDiv.style.overflowY = 'auto';
-    logDiv.style.borderRadius = '8px';
-    logDiv.style.boxShadow = '0 2px 8px #0006';
-    logDiv.style.padding = '12px 18px 12px 12px';
+    logDiv.style.borderRadius = '12px';
+    logDiv.style.boxShadow = '0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05)';
+    logDiv.style.padding = '0';
     logDiv.style.pointerEvents = 'auto';
-    logDiv.style.lineHeight = '1.6';
-    logDiv.innerHTML = `
-      <b>無名子大王搶票小幫手 LOG</b>
-      <form id="ticket-helper-form" style="margin:8px 0 8px 0;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-        <input id="th-area" type="text" placeholder="場區關鍵字" style="width:110px;padding:2px 6px;" required>
-        <select id="th-qty" style="padding:2px 6px;">
-          <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
-        </select>        <button id="th-start" type="submit" style="background:#00ff00;color:#222;font-weight:bold;padding:2px 12px;border-radius:4px;border:none;cursor:pointer;">戰爭開始</button>
-        <button id="th-stop" type="button" style="background:#ff4444;color:#fff;font-weight:bold;padding:2px 12px;border-radius:4px;border:none;cursor:pointer;">戰爭結束</button>
-      </form>
-      <hr style="margin:4px 0 8px 0;border:0;border-top:1px solid #444;">
+    logDiv.style.lineHeight = '1.5'; logDiv.innerHTML = `
+      <div style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); padding: 16px; border-radius: 12px 12px 0 0; border-bottom: 2px solid rgba(255,255,255,0.1);">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 12px; height: 12px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 8px #00ff88;"></div>
+          <span style="font-weight: bold; font-size: 16px; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">無名子大王搶票小幫手</span>
+        </div>
+      </div>
+      
+      <div style="padding: 16px; background: rgba(0,0,0,0.2); border-radius: 0 0 12px 12px;">
+        <div style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 16px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 16px;">
+          <form id="ticket-helper-form" style="display: grid; gap: 12px;">
+            <div style="display: grid; grid-template-columns: 1fr 80px; gap: 10px;">
+              <div style="position: relative;">
+                <input id="th-area" type="text" placeholder="場區關鍵字" required
+                  style="width: 100%; padding: 10px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: #fff; font-size: 13px; transition: all 0.3s ease;">
+                <label style="position: absolute; top: -8px; left: 8px; background: linear-gradient(90deg, #667eea, #764ba2); padding: 2px 8px; border-radius: 4px; font-size: 10px; color: #fff;">場區</label>
+              </div>              <div style="position: relative;">
+                <select id="th-qty" style="width: 100%; padding: 10px 32px 10px 8px; background: rgba(40,40,40,0.9); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: #fff; font-size: 13px; cursor: pointer;">
+                  <option value="1" style="background: #2c2c2c; color: #ffffff;">1 張</option>
+                  <option value="2" style="background: #2c2c2c; color: #ffffff;">2 張</option>
+                  <option value="3" style="background: #2c2c2c; color: #ffffff;">3 張</option>
+                  <option value="4" style="background: #2c2c2c; color: #ffffff;">4 張</option>
+                </select>
+                <label style="position: absolute; top: -8px; left: 8px; background: linear-gradient(90deg, #667eea, #764ba2); padding: 2px 8px; border-radius: 4px; font-size: 10px; color: #fff;">數量</label>
+              </div>
+            </div>
+            
+            <div style="display: flex; align-items: center; justify-content: center; padding: 8px; background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.2); border-radius: 6px;">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+                <input id="th-semi-auto" type="checkbox" style="width: 16px; height: 16px; accent-color: #00ff88;">
+                <span style="font-size: 13px; color: #00ff88; font-weight: 500;">🤖 半自動模式</span>
+              </label>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px;">
+              <button id="th-start" type="submit" 
+                style="padding: 12px 16px; background: linear-gradient(45deg, #00ff88, #00cc6a); color: #000; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,255,136,0.3);">
+                🚀 戰爭開始
+              </button>
+              <button id="th-stop" type="button" 
+                style="padding: 12px 16px; background: linear-gradient(45deg, #ff4757, #ff3742); color: #fff; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(255,71,87,0.3);">
+                ⏹️ 戰爭結束
+              </button>
+            </div>
+          </form>
+        </div>
+        
+        <div id="log-container" style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 12px; max-height: 300px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); font-family: Consolas, monospace; font-size: 12px;">
+          <div style="color: #00ff88; margin-bottom: 8px; font-weight: bold;">📋 執行日誌</div>
+        </div>
+      </div>
     `;
     document.body.appendChild(logDiv);
 
-    function appendLog(msg, color) {
+    // 添加動態樣式效果
+    const style = document.createElement('style');
+    style.textContent = `
+        #ticket-helper-log input:focus {
+            outline: none;
+            border-color: rgba(0,255,136,0.6) !important;
+            box-shadow: 0 0 0 2px rgba(0,255,136,0.2) !important;
+            background: rgba(0,255,136,0.1) !important;
+        }
+          #ticket-helper-log select:focus {
+            outline: none;
+            border-color: rgba(0,255,136,0.6) !important;
+            box-shadow: 0 0 0 2px rgba(0,255,136,0.2) !important;
+        }
+        
+        /* 修復選擇框下拉選單的顯示問題 */
+        #th-qty {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 16px;
+            padding-right: 32px !important;
+        }
+        
+        #th-qty option {
+            background: #2c2c2c !important;
+            color: #ffffff !important;
+            padding: 8px 12px !important;
+            border: none !important;
+        }
+        
+        #th-qty option:hover {
+            background: #404040 !important;
+            color: #00ff88 !important;
+        }
+        
+        #th-qty option:checked {
+            background: #00ff88 !important;
+            color: #000000 !important;
+        }
+        
+        #th-start:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(0,255,136,0.4) !important;
+            background: linear-gradient(45deg, #00ff88, #00aa55) !important;
+        }
+        
+        #th-stop:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(255,71,87,0.4) !important;
+            background: linear-gradient(45deg, #ff4757, #ee2233) !important;
+        }
+        
+        #ticket-helper-log button:active {
+            transform: translateY(0px) !important;
+        }
+        
+        #log-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        #log-container::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+        }
+        
+        #log-container::-webkit-scrollbar-thumb {
+            background: rgba(0,255,136,0.6);
+            border-radius: 3px;
+        }
+        
+        #log-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(0,255,136,0.8);
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0,255,136,0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0,255,136,0); }
+            100% { box-shadow: 0 0 0 0 rgba(0,255,136,0); }
+        }
+          .pulse-effect {
+            animation: pulse 2s infinite !important;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+            20%, 40%, 60%, 80% { transform: translateX(2px); }
+        }
+    `;
+    document.head.appendChild(style); function appendLog(msg, color = '#fff') {
+        const logContainer = document.getElementById('log-container');
+        if (!logContainer) return;
+
         const p = document.createElement('div');
-        p.textContent = msg;
-        if (color) p.style.color = color;
-        logDiv.appendChild(p);
-        logDiv.scrollTop = logDiv.scrollHeight;
+        p.style.padding = '4px 0';
+        p.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+        p.style.color = color;
+        p.style.wordBreak = 'break-word';
+
+        // 添加時間戳
+        const timestamp = new Date().toLocaleTimeString();
+        const timestampSpan = document.createElement('span');
+        timestampSpan.textContent = `[${timestamp}] `;
+        timestampSpan.style.color = 'rgba(255,255,255,0.5)';
+        timestampSpan.style.fontSize = '11px';
+
+        p.appendChild(timestampSpan);
+        p.appendChild(document.createTextNode(msg));
+
+        logContainer.appendChild(p);
+        logContainer.scrollTop = logContainer.scrollHeight;
+
+        // 限制日誌條數，保持性能
+        const logs = logContainer.children;
+        if (logs.length > 100) {
+            for (let i = 1; i < 20; i++) { // 保留標題，刪除舊日誌
+                if (logs[i]) logs[i].remove();
+            }
+        }
     }
     // 攔截 console.log/console.error
     const rawLog = console.log;
@@ -53,30 +212,63 @@
     };    // 快速設定表單事件
     document.getElementById('ticket-helper-form').addEventListener('submit', function (e) {
         e.preventDefault();
+        const startBtn = document.getElementById('th-start');
         const areaKeyword = document.getElementById('th-area').value.trim();
         const ticketQuantity = document.getElementById('th-qty').value;
+        const semiAutoMode = document.getElementById('th-semi-auto').checked;
+
         if (!areaKeyword) {
-            appendLog('請輸入場區關鍵字！', '#ff7070');
+            appendLog('❌ 請輸入場區關鍵字！', '#ff7070');
+            // 輸入框抖動效果
+            const areaInput = document.getElementById('th-area');
+            areaInput.style.animation = 'shake 0.5s';
+            setTimeout(() => areaInput.style.animation = '', 500);
             return;
         }
+
+        // 按鈕載入效果
+        startBtn.innerHTML = '🔄 啟動中...';
+        startBtn.style.background = 'linear-gradient(45deg, #ffa502, #ff6348)';
+        startBtn.disabled = true;
+
         // 儲存到 chrome.storage 並啟動流程
         chrome.storage.local.set({
             ticketConfig: {
                 areaKeyword: areaKeyword,
                 ticketQuantity: ticketQuantity,
-                isRunning: true
+                isRunning: true,
+                semiAutoMode: semiAutoMode
             }
         }, () => {
-            appendLog('設定已儲存，流程啟動！', '#00ff00');
+            const mode = semiAutoMode ? '🤖 半自動模式' : '⚡ 全自動模式';
+            appendLog(`✅ 設定已儲存，流程啟動！(${mode})`, '#00ff88');
+            appendLog(`🎯 目標場區: ${areaKeyword}`, '#00bfff');
+            appendLog(`🎫 票券數量: ${ticketQuantity} 張`, '#00bfff');
+
             // 重新整理頁面
-            location.reload();
+            setTimeout(() => location.reload(), 1000);
         });
     });    // 戰爭結束按鈕事件
     document.getElementById('th-stop').addEventListener('click', function (e) {
         e.preventDefault();
+        const stopBtn = this;
+
+        // 按鈕效果
+        stopBtn.innerHTML = '⏳ 停止中...';
+        stopBtn.style.background = 'linear-gradient(45deg, #orange, #red)';
+        stopBtn.disabled = true;
+
         // 清除設定並停止腳本
         chrome.storage.local.remove('ticketConfig', () => {
-            appendLog('搶票流程已手動停止！', '#ff7070');
+            appendLog('🛑 搶票流程已手動停止！', '#ff7070');
+            appendLog('💤 系統進入待機狀態', '#ffa502');
+
+            // 恢復按鈕
+            setTimeout(() => {
+                stopBtn.innerHTML = '⏹️ 戰爭結束';
+                stopBtn.style.background = 'linear-gradient(45deg, #ff4757, #ff3742)';
+                stopBtn.disabled = false;
+            }, 1000);
         });
     });
 })();
@@ -180,8 +372,9 @@ async function handleTicketPage(config) {
         if (agreeCheckbox && !agreeCheckbox.checked) {
             agreeCheckbox.click();
             console.log('[數量頁] 同意條款已勾選');
-        }        // 立即開始驗證碼處理（無需等待）
-        console.log('[數量頁] 開始無限重試驗證碼識別流程...');
+        }        // 立即開始驗證碼處理
+        const mode = config.semiAutoMode ? '半自動' : '全自動';
+        console.log(`[數量頁] 開始${mode}驗證碼處理流程...`);
         const captchaInput = await waitForElement('#TicketForm_verifyCode');
         if (!captchaInput) {
             console.error('[數量頁] 找不到驗證碼輸入框，1秒後重試整個流程');
@@ -201,111 +394,182 @@ async function handleTicketPage(config) {
             }
         }
 
-        // 無限重試驗證碼辨識循環
-        let captchaAttempts = 0;
-        while (true) { // 無限循環直到成功
-            captchaAttempts++;
-            console.log(`[數量頁] 驗證碼辨識第 ${captchaAttempts} 次嘗試...`);
-
-            try {
-                const captchaImage = await waitForElement('#TicketForm_verifyCode-image');
-                if (!captchaImage) {
-                    console.log('[數量頁] 等待驗證碼圖片載入...');
-                    await sleep(500);
-                    continue;
-                }
-
-                console.log('[數量頁] 快速識別驗證碼中...');
-                const imageUrl = new URL(captchaImage.src, window.location.origin).href;
-                const imageBase64 = await imageUrlToBase64(imageUrl);
-
-                const response = await fetch('http://127.0.0.1:9988/solve', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ image_base64: imageBase64 }),
-                }); if (response.ok) {
-                    const data = await response.json();
-                    if (data.result && data.result.length >= 4) {
-                        console.log(`[數量頁] 識別成功: ${data.result}，正在驗證和提交`);
-
-                        // 清空輸入框並重新填入，確保內容正確
-                        captchaInput.value = '';
-                        await sleep(50);
-                        captchaInput.value = data.result;
-
-                        // 觸發輸入事件，確保網站檢測到輸入
-                        captchaInput.dispatchEvent(new Event('input', { bubbles: true }));
-                        captchaInput.dispatchEvent(new Event('change', { bubbles: true }));
-
-                        // 給一點時間讓輸入框更新
-                        await sleep(200);// 立即嘗試點擊確認按鈕
-                        const confirmButton = Array.from(document.querySelectorAll('button.btn-primary'))
-                            .find(btn => btn.textContent.replace(/\s+/g, '') === '確認張數');
-                        if (confirmButton) {
-                            console.log('[數量頁] 立即點擊「確認張數」按鈕！');
-                            confirmButton.click();
-
-                            // 等待提交結果並檢測是否有錯誤
-                            await sleep(2000);
-
-                            // 檢查是否有錯誤訊息
-                            const errorMessages = document.querySelectorAll('.alert-danger, .error, .text-danger, [class*="error"]');
-                            let hasError = false;
-
-                            for (const errorEl of errorMessages) {
-                                const errorText = errorEl.textContent || '';
-                                if (errorText.includes('驗證碼') || errorText.includes('verification') ||
-                                    errorText.includes('captcha') || errorText.includes('錯誤') ||
-                                    errorText.includes('invalid') || errorText.includes('incorrect')) {
-                                    console.log(`[數量頁] 偵測到驗證碼錯誤訊息: ${errorText.trim()}`);
-                                    hasError = true;
-                                    break;
-                                }
-                            }
-
-                            // 檢查頁面是否還在票券頁面（驗證碼錯誤會留在原頁面）
-                            if (hasError || window.location.pathname.includes('/ticket/ticket/')) {
-                                console.log('[數量頁] 驗證碼可能錯誤，清空輸入框並重新識別');
-                                captchaInput.value = '';
-                                // 繼續循環重新識別
-                            } else {
-                                console.log('[數量頁] 提交成功，頁面已跳轉！');
-                                return; // 成功跳轉，結束函式
-                            }
-                        } else {
-                            console.log('[數量頁] 找不到確認按鈕，等待手動操作...');
-                            // 找不到按鈕時，不更換驗證碼，保持當前識別結果
-                            await sleep(2000);
-                            continue; // 重新嘗試找確認按鈕
-                        }
-                    } else if (data.result) {
-                        console.log(`[數量頁] 驗證碼長度不足: ${data.result}，更換驗證碼重試`);
-                        // 只有長度不足時才更換驗證碼
-                    } else {
-                        console.log('[數量頁] API未返回結果，更換驗證碼重試');
-                    }
-                } else {
-                    console.log('[數量頁] API請求失敗，更換驗證碼重試');
-                }
-            } catch (error) {
-                console.log(`[數量頁] 第 ${captchaAttempts} 次識別失敗: ${error.message}，更換驗證碼重試`);
-            }
-
-            // 只有在需要時才更換驗證碼
-            console.log('[數量頁] 更換驗證碼中...');
-            const refreshButton = document.querySelector('#TicketForm_verifyCode-image') ||
-                document.querySelector('img[onclick*="refresh"]') ||
-                document.querySelector('a[onclick*="refresh"]');
-            if (refreshButton) {
-                refreshButton.click();
-                await sleep(500); // 等待新驗證碼載入
-            } else {
-                await sleep(300); // 短暫等待後直接重試
-            }
+        // 根據模式選擇不同的驗證碼處理方式
+        if (config.semiAutoMode) {
+            // 半自動模式：等待手動輸入驗證碼
+            await handleSemiAutoMode(captchaInput);
+        } else {
+            // 全自動模式：自動識別驗證碼
+            await handleFullAutoMode(captchaInput);
         }
     } catch (error) {
         console.error("處理票券頁面時發生錯誤，1秒後重新整理頁面重試:", error);
         setTimeout(() => location.reload(), 1000);
+    }
+}
+
+// 半自動模式：等待手動輸入驗證碼
+async function handleSemiAutoMode(captchaInput) {
+    console.log('[半自動模式] 等待您手動輸入驗證碼...');
+
+    // 高亮顯示驗證碼輸入框
+    captchaInput.style.border = '3px solid #00ff00';
+    captchaInput.style.boxShadow = '0 0 10px #00ff00';
+
+    // 等待用戶輸入驗證碼
+    await waitForCaptcha(captchaInput, 4);
+
+    // 恢復原始樣式
+    captchaInput.style.border = '';
+    captchaInput.style.boxShadow = '';
+
+    console.log(`[半自動模式] 已輸入驗證碼: ${captchaInput.value}，準備提交`);
+
+    // 自動點擊確認按鈕
+    const confirmButton = Array.from(document.querySelectorAll('button.btn-primary'))
+        .find(btn => btn.textContent.replace(/\s+/g, '') === '確認張數');
+
+    if (confirmButton) {
+        console.log('[半自動模式] 自動點擊「確認張數」按鈕');
+        confirmButton.click();
+
+        // 等待提交結果
+        await sleep(2000);
+
+        // 檢查是否有錯誤訊息
+        const errorMessages = document.querySelectorAll('.alert-danger, .error, .text-danger, [class*="error"]');
+        let hasError = false;
+
+        for (const errorEl of errorMessages) {
+            const errorText = errorEl.textContent || '';
+            if (errorText.includes('驗證碼') || errorText.includes('verification') ||
+                errorText.includes('captcha') || errorText.includes('錯誤') ||
+                errorText.includes('invalid') || errorText.includes('incorrect')) {
+                console.log(`[半自動模式] 偵測到驗證碼錯誤: ${errorText.trim()}`);
+                hasError = true;
+                break;
+            }
+        }
+
+        // 如果有錯誤，清空輸入框並遞歸重新開始
+        if (hasError || window.location.pathname.includes('/ticket/ticket/')) {
+            console.log('[半自動模式] 驗證碼錯誤，請重新輸入');
+            captchaInput.value = '';
+            await handleSemiAutoMode(captchaInput); // 遞歸重新開始
+        } else {
+            console.log('[半自動模式] 提交成功！');
+        }
+    } else {
+        console.log('[半自動模式] 找不到確認按鈕，請手動點擊');
+    }
+}
+
+// 全自動模式：自動識別驗證碼
+async function handleFullAutoMode(captchaInput) {
+    let captchaAttempts = 0;
+    while (true) { // 無限循環直到成功
+        captchaAttempts++;
+        console.log(`[全自動模式] 驗證碼辨識第 ${captchaAttempts} 次嘗試...`);
+
+        try {
+            const captchaImage = await waitForElement('#TicketForm_verifyCode-image');
+            if (!captchaImage) {
+                console.log('[全自動模式] 等待驗證碼圖片載入...');
+                await sleep(500);
+                continue;
+            }
+
+            console.log('[全自動模式] 快速識別驗證碼中...');
+            const imageUrl = new URL(captchaImage.src, window.location.origin).href;
+            const imageBase64 = await imageUrlToBase64(imageUrl);
+
+            const response = await fetch('http://127.0.0.1:9988/solve', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image_base64: imageBase64 }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.result && data.result.length >= 4) {
+                    console.log(`[全自動模式] 識別成功: ${data.result}，正在驗證和提交`);
+
+                    // 清空輸入框並重新填入，確保內容正確
+                    captchaInput.value = '';
+                    await sleep(50);
+                    captchaInput.value = data.result;
+
+                    // 觸發輸入事件，確保網站檢測到輸入
+                    captchaInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    captchaInput.dispatchEvent(new Event('change', { bubbles: true }));
+
+                    // 給一點時間讓輸入框更新
+                    await sleep(200);
+
+                    // 立即嘗試點擊確認按鈕
+                    const confirmButton = Array.from(document.querySelectorAll('button.btn-primary'))
+                        .find(btn => btn.textContent.replace(/\s+/g, '') === '確認張數');
+                    if (confirmButton) {
+                        console.log('[全自動模式] 立即點擊「確認張數」按鈕！');
+                        confirmButton.click();
+
+                        // 等待提交結果並檢測是否有錯誤
+                        await sleep(2000);
+
+                        // 檢查是否有錯誤訊息
+                        const errorMessages = document.querySelectorAll('.alert-danger, .error, .text-danger, [class*="error"]');
+                        let hasError = false;
+
+                        for (const errorEl of errorMessages) {
+                            const errorText = errorEl.textContent || '';
+                            if (errorText.includes('驗證碼') || errorText.includes('verification') ||
+                                errorText.includes('captcha') || errorText.includes('錯誤') ||
+                                errorText.includes('invalid') || errorText.includes('incorrect')) {
+                                console.log(`[全自動模式] 偵測到驗證碼錯誤訊息: ${errorText.trim()}`);
+                                hasError = true;
+                                break;
+                            }
+                        }
+
+                        // 檢查頁面是否還在票券頁面（驗證碼錯誤會留在原頁面）
+                        if (hasError || window.location.pathname.includes('/ticket/ticket/')) {
+                            console.log('[全自動模式] 驗證碼可能錯誤，清空輸入框並重新識別');
+                            captchaInput.value = '';
+                            // 繼續循環重新識別
+                        } else {
+                            console.log('[全自動模式] 提交成功，頁面已跳轉！');
+                            return; // 成功跳轉，結束函式
+                        }
+                    } else {
+                        console.log('[全自動模式] 找不到確認按鈕，等待手動操作...');
+                        // 找不到按鈕時，不更換驗證碼，保持當前識別結果
+                        await sleep(2000);
+                        continue; // 重新嘗試找確認按鈕
+                    }
+                } else if (data.result) {
+                    console.log(`[全自動模式] 驗證碼長度不足: ${data.result}，更換驗證碼重試`);
+                    // 只有長度不足時才更換驗證碼
+                } else {
+                    console.log('[全自動模式] API未返回結果，更換驗證碼重試');
+                }
+            } else {
+                console.log('[全自動模式] API請求失敗，更換驗證碼重試');
+            }
+        } catch (error) {
+            console.log(`[全自動模式] 第 ${captchaAttempts} 次識別失敗: ${error.message}，更換驗證碼重試`);
+        }
+
+        // 只有在需要時才更換驗證碼
+        console.log('[全自動模式] 更換驗證碼中...');
+        const refreshButton = document.querySelector('#TicketForm_verifyCode-image') ||
+            document.querySelector('img[onclick*="refresh"]') ||
+            document.querySelector('a[onclick*="refresh"]');
+        if (refreshButton) {
+            refreshButton.click();
+            await sleep(500); // 等待新驗證碼載入
+        } else {
+            await sleep(300); // 短暫等待後直接重試
+        }
     }
 }
 
