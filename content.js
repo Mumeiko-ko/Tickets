@@ -26,8 +26,8 @@
         <input id="th-area" type="text" placeholder="場區關鍵字" style="width:110px;padding:2px 6px;" required>
         <select id="th-qty" style="padding:2px 6px;">
           <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
-        </select>
-        <button id="th-start" type="submit" style="background:#00ff00;color:#222;font-weight:bold;padding:2px 12px;border-radius:4px;border:none;cursor:pointer;">戰爭開始</button>
+        </select>        <button id="th-start" type="submit" style="background:#00ff00;color:#222;font-weight:bold;padding:2px 12px;border-radius:4px;border:none;cursor:pointer;">戰爭開始</button>
+        <button id="th-stop" type="button" style="background:#ff4444;color:#fff;font-weight:bold;padding:2px 12px;border-radius:4px;border:none;cursor:pointer;">戰爭結束</button>
       </form>
       <hr style="margin:4px 0 8px 0;border:0;border-top:1px solid #444;">
     `;
@@ -50,9 +50,7 @@
     console.error = function (...args) {
         appendLog(args.join(' '), '#ff7070');
         rawErr.apply(console, args);
-    };
-
-    // 快速設定表單事件
+    };    // 快速設定表單事件
     document.getElementById('ticket-helper-form').addEventListener('submit', function (e) {
         e.preventDefault();
         const areaKeyword = document.getElementById('th-area').value.trim();
@@ -72,6 +70,13 @@
             appendLog('設定已儲存，流程啟動！', '#00ff00');
             // 重新整理頁面
             location.reload();
+        });
+    });    // 戰爭結束按鈕事件
+    document.getElementById('th-stop').addEventListener('click', function (e) {
+        e.preventDefault();
+        // 清除設定並停止腳本
+        chrome.storage.local.remove('ticketConfig', () => {
+            appendLog('搶票流程已手動停止！', '#ff7070');
         });
     });
 })();
@@ -150,65 +155,67 @@ async function handleAreaPage(config) {
     chrome.storage.local.remove('ticketConfig');
 }
 
-// 驗證碼頁重試次數限制
-let ticketPageRetry = parseInt(sessionStorage.getItem('ticketPageRetry') || '0', 10);
-
-// 流程函式：在「票券數量頁」完成操作 (完整重構版)
+// 流程函式：在「票券數量頁」完成操作 (優化無限重試版)
 async function handleTicketPage(config) {
-    if (ticketPageRetry > 5) {
-        console.error('[數量頁] 驗證碼重試超過 5 次，自動停止。');
-        chrome.storage.local.remove('ticketConfig');
-        return;
-    }
-    ticketPageRetry++;
-    sessionStorage.setItem('ticketPageRetry', ticketPageRetry);
-
-    console.log('[數量頁] 進入數量選擇頁面，開始執行自動化流程...');
+    console.log('[數量頁] 進入數量選擇頁面，開始快速自動化流程...');
 
     try {
-        // --- 步驟 1: 選擇數量 (獨立執行) ---
-        console.log('[數量頁] 步驟 1: 正在選擇數量...');
-        const quantitySelect = await waitForElement('select.form-select');
+        // === 優化後的並行處理流程 ===
+
+        // 同時處理數量選擇和同意條款（並行執行）
+        console.log('[數量頁] 同時執行：選擇數量 + 勾選同意條款...');
+        const [quantitySelect, agreeCheckbox] = await Promise.all([
+            waitForElement('select.form-select'),
+            waitForElement('input[type="checkbox"]')
+        ]);
+
+        // 立即設置數量
         if (quantitySelect) {
             quantitySelect.value = config.ticketQuantity;
             quantitySelect.dispatchEvent(new Event('change', { bubbles: true }));
             console.log(`[數量頁] 數量已選擇: ${config.ticketQuantity}`);
-        } else {
-            console.error('[數量頁] 找不到數量選擇下拉選單，腳本終止。');
-            return; // 關鍵步驟失敗，直接退出
         }
-        await sleep(200); // 短暫停頓，讓頁面反應
 
-        // --- 步驟 2: 勾選同意框 (獨立執行) ---
-        console.log('[數量頁] 步驟 2: 正在勾選同意條款...');
-        const agreeCheckbox = await waitForElement('input[type="checkbox"]');
+        // 立即勾選同意框
         if (agreeCheckbox && !agreeCheckbox.checked) {
             agreeCheckbox.click();
-            console.log('[數量頁] 同意條款已勾選。');
-        } else if (!agreeCheckbox) {
-            console.error('[數量頁] 找不到同意條款勾選框，但腳本將繼續嘗試。');
-        }
-        await sleep(200);        // --- 步驟 3: 處理驗證碼 (自動識別，帶有失敗後備方案) ---
-        console.log('[數量頁] 步驟 3: 正在處理驗證碼...');
+            console.log('[數量頁] 同意條款已勾選');
+        }        // 立即開始驗證碼處理（無需等待）
+        console.log('[數量頁] 開始無限重試驗證碼識別流程...');
         const captchaInput = await waitForElement('#TicketForm_verifyCode');
         if (!captchaInput) {
-            console.error('[數量頁] 找不到驗證碼輸入框，腳本終止。');
+            console.error('[數量頁] 找不到驗證碼輸入框，1秒後重試整個流程');
+            setTimeout(() => location.reload(), 1000);
             return;
         }
 
-        // 驗證碼辨識與重新整理的循環
-        let captchaAttempts = 0;
-        const maxCaptchaAttempts = 3;
+        // 檢查是否已經有驗證碼內容（可能是手動輸入的）
+        if (captchaInput.value && captchaInput.value.length >= 4) {
+            console.log(`[數量頁] 發現已有驗證碼: ${captchaInput.value}，直接嘗試提交`);
+            const confirmButton = Array.from(document.querySelectorAll('button.btn-primary'))
+                .find(btn => btn.textContent.replace(/\s+/g, '') === '確認張數');
+            if (confirmButton) {
+                console.log('[數量頁] 點擊「確認張數」按鈕');
+                confirmButton.click();
+                return;
+            }
+        }
 
-        while (captchaAttempts < maxCaptchaAttempts) {
+        // 無限重試驗證碼辨識循環
+        let captchaAttempts = 0;
+        while (true) { // 無限循環直到成功
             captchaAttempts++;
-            console.log(`[數量頁] 驗證碼辨識嘗試 ${captchaAttempts}/${maxCaptchaAttempts}`);
+            console.log(`[數量頁] 驗證碼辨識第 ${captchaAttempts} 次嘗試...`);
 
             try {
                 const captchaImage = await waitForElement('#TicketForm_verifyCode-image');
-                if (!captchaImage) throw new Error("找不到驗證碼圖片");
+                if (!captchaImage) {
+                    console.log('[數量頁] 等待驗證碼圖片載入...');
+                    await sleep(500);
+                    continue;
+                }
 
-                console.log('[數量頁] 找到驗證碼圖片，嘗試自動識別...');
+                console.log('[數量頁] 快速識別驗證碼中...');
                 const imageUrl = new URL(captchaImage.src, window.location.origin).href;
                 const imageBase64 = await imageUrlToBase64(imageUrl);
 
@@ -216,106 +223,125 @@ async function handleTicketPage(config) {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ image_base64: imageBase64 }),
-                });
+                }); if (response.ok) {
+                    const data = await response.json();
+                    if (data.result && data.result.length >= 4) {
+                        console.log(`[數量頁] 識別成功: ${data.result}，正在驗證和提交`);
 
-                if (!response.ok) throw new Error(`API 伺服器錯誤: ${response.status}`);
+                        // 清空輸入框並重新填入，確保內容正確
+                        captchaInput.value = '';
+                        await sleep(50);
+                        captchaInput.value = data.result;
 
-                const data = await response.json();
-                if (data.result && data.result.length >= 4) {
-                    console.log(`[數量頁] ddddocr 識別成功: ${data.result}`);
-                    captchaInput.value = data.result;
-                    break; // 成功識別且長度足夠，跳出循環
-                } else if (data.result) {
-                    console.log(`[數量頁] 驗證碼長度不足 (${data.result.length} < 4): ${data.result}，嘗試更換驗證碼`);
-                    // 點擊更換驗證碼按鈕
-                    const refreshButton = document.querySelector('#TicketForm_verifyCode-image') ||
-                        document.querySelector('img[onclick*="refresh"]') ||
-                        document.querySelector('a[onclick*="refresh"]');
-                    if (refreshButton) {
-                        refreshButton.click();
-                        await sleep(1000); // 等待新驗證碼載入
-                        continue; // 重新辨識
+                        // 觸發輸入事件，確保網站檢測到輸入
+                        captchaInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        captchaInput.dispatchEvent(new Event('change', { bubbles: true }));
+
+                        // 給一點時間讓輸入框更新
+                        await sleep(200);// 立即嘗試點擊確認按鈕
+                        const confirmButton = Array.from(document.querySelectorAll('button.btn-primary'))
+                            .find(btn => btn.textContent.replace(/\s+/g, '') === '確認張數');
+                        if (confirmButton) {
+                            console.log('[數量頁] 立即點擊「確認張數」按鈕！');
+                            confirmButton.click();
+
+                            // 等待提交結果並檢測是否有錯誤
+                            await sleep(2000);
+
+                            // 檢查是否有錯誤訊息
+                            const errorMessages = document.querySelectorAll('.alert-danger, .error, .text-danger, [class*="error"]');
+                            let hasError = false;
+
+                            for (const errorEl of errorMessages) {
+                                const errorText = errorEl.textContent || '';
+                                if (errorText.includes('驗證碼') || errorText.includes('verification') ||
+                                    errorText.includes('captcha') || errorText.includes('錯誤') ||
+                                    errorText.includes('invalid') || errorText.includes('incorrect')) {
+                                    console.log(`[數量頁] 偵測到驗證碼錯誤訊息: ${errorText.trim()}`);
+                                    hasError = true;
+                                    break;
+                                }
+                            }
+
+                            // 檢查頁面是否還在票券頁面（驗證碼錯誤會留在原頁面）
+                            if (hasError || window.location.pathname.includes('/ticket/ticket/')) {
+                                console.log('[數量頁] 驗證碼可能錯誤，清空輸入框並重新識別');
+                                captchaInput.value = '';
+                                // 繼續循環重新識別
+                            } else {
+                                console.log('[數量頁] 提交成功，頁面已跳轉！');
+                                return; // 成功跳轉，結束函式
+                            }
+                        } else {
+                            console.log('[數量頁] 找不到確認按鈕，等待手動操作...');
+                            // 找不到按鈕時，不更換驗證碼，保持當前識別結果
+                            await sleep(2000);
+                            continue; // 重新嘗試找確認按鈕
+                        }
+                    } else if (data.result) {
+                        console.log(`[數量頁] 驗證碼長度不足: ${data.result}，更換驗證碼重試`);
+                        // 只有長度不足時才更換驗證碼
                     } else {
-                        throw new Error("找不到更換驗證碼按鈕");
+                        console.log('[數量頁] API未返回結果，更換驗證碼重試');
                     }
                 } else {
-                    throw new Error("API 未返回有效結果");
+                    console.log('[數量頁] API請求失敗，更換驗證碼重試');
                 }
             } catch (error) {
-                console.error(`[數量頁] 驗證碼辨識嘗試 ${captchaAttempts} 失敗:`, error.message);
-                if (captchaAttempts >= maxCaptchaAttempts) {
-                    console.error('[數量頁] 自動識別驗證碼失敗，請立即手動輸入！');
-                    alert('自動識別驗證碼失敗！請您立即手動輸入！');
-                } else {
-                    // 嘗試點擊更換驗證碼
-                    const refreshButton = document.querySelector('#TicketForm_verifyCode-image') ||
-                        document.querySelector('img[onclick*="refresh"]') ||
-                        document.querySelector('a[onclick*="refresh"]');
-                    if (refreshButton) {
-                        refreshButton.click();
-                        await sleep(1000);
-                    }
-                }
+                console.log(`[數量頁] 第 ${captchaAttempts} 次識別失敗: ${error.message}，更換驗證碼重試`);
+            }
+
+            // 只有在需要時才更換驗證碼
+            console.log('[數量頁] 更換驗證碼中...');
+            const refreshButton = document.querySelector('#TicketForm_verifyCode-image') ||
+                document.querySelector('img[onclick*="refresh"]') ||
+                document.querySelector('a[onclick*="refresh"]');
+            if (refreshButton) {
+                refreshButton.click();
+                await sleep(500); // 等待新驗證碼載入
+            } else {
+                await sleep(300); // 短暫等待後直接重試
             }
         }
-
-        // --- 步驟 4: 等待驗證碼輸入完成 (無論是自動還是手動) ---
-        console.log('[數量頁] 步驟 4: 等待驗證碼輸入框內容確認...');
-        await waitForCaptcha(captchaInput, 4); // 假設驗證碼至少4碼
-        console.log('[數量頁] 偵測到驗證碼已輸入。');
-
-        // --- 步驟 5: 點擊最終確認按鈕 (獨立執行) ---
-        console.log('[數量頁] 步驟 5: 正在點擊確認張數按鈕...');
-        // 以 class btn-primary 且文字為「確認張數」來找按鈕
-        const confirmButton = Array.from(document.querySelectorAll('button.btn-primary'))
-            .find(btn => btn.textContent.replace(/\s+/g, '') === '確認張數');
-        if (confirmButton) {
-            console.log('[數量頁] 點擊「確認張數」按鈕。');
-            confirmButton.click();
-            sessionStorage.removeItem('ticketPageRetry');
-            chrome.storage.local.remove('ticketConfig');
-        } else {
-            console.error('[數量頁] 找不到「確認張數」按鈕。');
-        }
-
     } catch (error) {
-        // 捕獲整個流程中的任何意外錯誤
-        console.error("處理票券頁面時發生了未預期的錯誤:", error);
+        console.error("處理票券頁面時發生錯誤，1秒後重新整理頁面重試:", error);
+        setTimeout(() => location.reload(), 1000);
     }
 }
 
 
-// ====== 票券數量頁自動偵測與自動重跑功能 ======
+// ====== 票券數量頁自動偵測與無限重跑功能 ======
 (function () {
-    let lastRun = 0;
     let running = false;
+    let lastSubmitTime = 0;
     const TICKET_PAGE_URL = '/ticket/ticket/';
-    const RETRY_INTERVAL = 1000; // 每秒檢查一次
-    const MAX_RETRY = 10;
-    let retryCount = 0;
+    const RETRY_INTERVAL = 500; // 縮短檢查間隔到0.5秒
+    const SUBMIT_COOLDOWN = 3000; // 提交後3秒冷卻時間
 
     async function tryAutoRunTicketPage() {
         if (window.location.pathname.includes(TICKET_PAGE_URL)) {
-            // 只要驗證碼輸入框出現且不是剛剛執行過就自動執行
             const captchaInput = document.querySelector('#TicketForm_verifyCode');
+            const currentTime = Date.now();
+
+            // 檢查是否在冷卻期間
+            if (currentTime - lastSubmitTime < SUBMIT_COOLDOWN) {
+                return;
+            }
+
             if (captchaInput && !running) {
                 running = true;
-                retryCount++;
-                if (retryCount > MAX_RETRY) {
-                    console.error('[數量頁] 自動重試超過上限，停止自動化。');
-                    running = false;
-                    return;
-                }
+                console.log('[自動重跑] 偵測到驗證碼頁面，立即執行搶票流程');
                 chrome.storage.local.get('ticketConfig', async (data) => {
                     if (data.ticketConfig && data.ticketConfig.isRunning) {
                         await handleTicketPage(data.ticketConfig);
+                        lastSubmitTime = Date.now(); // 記錄提交時間
                     }
                     running = false;
                 });
             }
         } else {
-            retryCount = 0;
             running = false;
+            lastSubmitTime = 0; // 離開票券頁面時重置
         }
     }
     setInterval(tryAutoRunTicketPage, RETRY_INTERVAL);
