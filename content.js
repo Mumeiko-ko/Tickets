@@ -25,7 +25,7 @@
       <div style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); padding: 16px; border-radius: 12px 12px 0 0; border-bottom: 2px solid rgba(255,255,255,0.1);">
         <div style="display: flex; align-items: center; gap: 10px;">
           <div style="width: 12px; height: 12px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 8px #00ff88;"></div>
-          <span style="font-weight: bold; font-size: 16px; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">無名子大王搶票小幫手</span>
+          <span style="font-weight: bold; font-size: 16px; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">無名子自動搶票小幫手</span>
         </div>
       </div>
       
