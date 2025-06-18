@@ -27,8 +27,16 @@
         "https://famiticket.com.tw/*",
         "https://ticket.com.tw/*",
         "https://urbtix.hk/*"
-      ], 
-      "js": ["content.js"],
+      ],      "js": [
+        "src/config/constants.js",
+        "src/utils/helpers.js",
+        "src/ui/floatingPanel.js",
+        "src/pages/areaSelection.js",
+        "src/services/captchaService.js",
+        "src/pages/ticketQuantity.js",
+        "src/core/mainRouter.js",
+        "content.js"
+      ],
       "run_at": "document_idle",
       "exclude_matches": [
         "https://www.ticketmaster.com/*",
