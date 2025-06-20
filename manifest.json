@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "無名子自動搶票小幫手",
-  "version": "1.0",
+  "version": "2.0",
   "description": "使用於拓元售票網的自動化點擊工具",
   "icons": {
     "16": "bird.png",
@@ -12,12 +12,13 @@
   "permissions": [
     "activeTab",
     "scripting",
-    "storage"  
+    "storage"
   ],
   "action": {
     "default_popup": "popup.html",
     "default_icon": "bird.png"
-  },  "content_scripts": [ 
+  },
+  "content_scripts": [
     {
       "matches": [
         "https://tixcraft.com/*",
@@ -27,13 +28,16 @@
         "https://famiticket.com.tw/*",
         "https://ticket.com.tw/*",
         "https://urbtix.hk/*"
-      ],      "js": [
+      ],
+      "js": [
         "src/config/constants.js",
         "src/utils/helpers.js",
+        "src/services/timeSync.js",
+        "src/services/scheduledTicketing.js",
         "src/ui/floatingPanel.js",
         "src/pages/areaSelection.js",
-        "src/services/captchaService.js",
         "src/pages/ticketQuantity.js",
+        "src/services/captchaService.js",
         "src/core/mainRouter.js",
         "content.js"
       ],

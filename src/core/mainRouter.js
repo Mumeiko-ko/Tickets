@@ -118,5 +118,10 @@ window.TicketHelperRouter = {
                 console.log("[活動頁] 沒有可用的 '立即訂購' 按鈕。");
             }
         }
+    },
+
+    // 直接啟動主流程
+    start() {
+        this.startMainRouter();
     }
 };

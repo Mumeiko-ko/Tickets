@@ -7,58 +7,93 @@
     <style>
         body {
             font-family: sans-serif;
-            width: 250px;
-            padding: 10px;
+            width: 280px;
+            padding: 16px;
+            background: linear-gradient(135deg, #23272f 0%, #413c3c 100%);
+            color: white;
+            margin: 0;
         }
 
-        div {
-            margin-bottom: 10px;
+        h3 {
+            text-align: center;
+            margin: 0 0 20px 0;
+            font-size: 18px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        label {
-            display: block;
-            margin-bottom: 5px;
+        .info-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            backdrop-filter: blur(10px);
         }
 
-        input,
-        select {
-            width: 95%;
-            padding: 5px;
+        .info-text {
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            opacity: 0.9;
         }
 
         button {
             width: 100%;
-            padding: 10px;
-            background-color: #00ff00;
-            color: rgba(0, 0, 0, 0.555);
+            padding: 12px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
             border: none;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 1.7em;
+            font-size: 16px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
 
         button:hover {
-            background-color: #ff0000;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            filter: brightness(1.15);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .secondary-btn {
+            background: linear-gradient(45deg, #ff4757, #ff3742) !important;
+            color: rgb(255, 1, 1) !important;
+            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3) !important;
+        }
+
+        .secondary-btn:hover {
+            background: linear-gradient(45deg, #ff4757, #ee2233) !important;
+            box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4) !important;
+        }
+
+        .version {
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 12px;
         }
     </style>
 </head>
 
 <body>
-    <h3>搶票小幫手設定</h3>
-    <div>
-        <label for="area-keyword">場區關鍵字:</label>
-        <input type="text" id="area-keyword" placeholder="例如：特A區 或 2樓...">
+    <h3>無名子搶票小幫手</h3>
+
+    <div class="info-section">
+        <div class="info-text">
+            使用說明：直接點擊下方按鈕前往售票網站，浮動面板會自動出現。
+        </div>
     </div>
-    <div>
-        <label for="ticket-quantity">票券數量1~4:</label>
-        <select id="ticket-quantity">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-        </select>
-    </div>
-    <button id="start-button">戰爭開始</button>
+
+    <button id="goto-tixcraft">前往拓元售票網</button>
+
+    <div class="version">v2.0</div>
 
     <script src="popup.js"></script>
 </body>
