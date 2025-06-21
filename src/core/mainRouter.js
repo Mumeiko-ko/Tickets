@@ -71,9 +71,7 @@ window.TicketHelperRouter = {
         else if (url.includes(constants.PATHS.TICKET_PAGE)) {
             await window.TicketHelperTicketQuantity.handle(config);
         }
-    },
-
-    // 檢查是否為區域選擇頁
+    },    // 檢查是否為區域選擇頁
     isAreaSelectionPage(url) {
         const constants = window.TicketHelperConstants;
 
@@ -99,23 +97,35 @@ window.TicketHelperRouter = {
 
             await utils.sleep(constants.TIMEOUTS.POPUP_WAIT);
 
-            const orderButtons = Array.from(document.querySelectorAll(constants.SELECTORS.ORDER_BUTTONS))
-                .filter(btn => btn.textContent &&
-                    btn.textContent.replace(/\s+/g, '').includes(constants.TEXT.ORDER_BUTTON_TEXT)
-                );
+            // 取得目前設定
+            const data = await chrome.storage.local.get('ticketConfig');
+            const config = data.ticketConfig || {};
 
-            let clicked = false;
-            for (const btn of orderButtons) {
-                if (!btn.disabled && btn.offsetParent !== null) {
-                    console.log("[活動頁] 點擊第一個可用的 '立即訂購' 按鈕。");
-                    btn.click();
-                    clicked = true;
-                    break;
+            // 如果有設定演出日期，使用日期選擇服務
+            if (config.performanceDate && window.TicketHelperDateSelection) {
+                console.log("[活動頁] 使用演出日期選擇服務");
+                await window.TicketHelperDateSelection.handle(config);
+            } else {
+                // 沒有設定日期或服務未載入，使用原有邏輯
+                console.log("[活動頁] 使用預設「立即訂購」邏輯");
+                const orderButtons = Array.from(document.querySelectorAll(constants.SELECTORS.ORDER_BUTTONS))
+                    .filter(btn => btn.textContent &&
+                        btn.textContent.replace(/\s+/g, '').includes(constants.TEXT.ORDER_BUTTON_TEXT)
+                    );
+
+                let clicked = false;
+                for (const btn of orderButtons) {
+                    if (!btn.disabled && btn.offsetParent !== null) {
+                        console.log("[活動頁] 點擊第一個可用的 '立即訂購' 按鈕。");
+                        btn.click();
+                        clicked = true;
+                        break;
+                    }
                 }
-            }
 
-            if (!clicked) {
-                console.log("[活動頁] 沒有可用的 '立即訂購' 按鈕。");
+                if (!clicked) {
+                    console.log("[活動頁] 沒有可用的 '立即訂購' 按鈕。");
+                }
             }
         }
     },

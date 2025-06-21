@@ -39,7 +39,10 @@ window.TicketHelperConstants = {
         CONFIRM_BUTTON: 'button.btn-primary',
 
         // 錯誤訊息
-        ERROR_SELECTORS: '.alert-danger, .error, .text-danger, [class*="error"]'
+        ERROR_SELECTORS: '.alert-danger, .error, .text-danger, [class*="error"]',
+
+        // 日期選擇按鈕
+        DATE_BUTTONS: 'button.date-item' // 假設日期按鈕的 class 為 date-item
     },
 
     // 時間設定

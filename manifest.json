@@ -34,6 +34,7 @@
         "src/utils/helpers.js",
         "src/services/timeSync.js",
         "src/services/scheduledTicketing.js",
+        "src/services/dateSelection.js",
         "src/ui/floatingPanel.js",
         "src/pages/areaSelection.js",
         "src/pages/ticketQuantity.js",

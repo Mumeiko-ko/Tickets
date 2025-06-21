@@ -11,33 +11,29 @@ window.TicketHelperUI = {
     // 創建面板
     createPanel() {
         const logDiv = document.createElement('div');
-        logDiv.id = 'ticket-helper-log';
-        Object.assign(logDiv.style, {
+        logDiv.id = 'ticket-helper-log'; Object.assign(logDiv.style, {
             position: 'fixed', top: '16px', right: '16px', zIndex: '99999',
             background: 'linear-gradient(135deg, rgba(24,28,36,0.75) 0%, rgba(35,39,47,0.75) 100%)', color: '#e0e0e0',
             fontSize: '13px', fontFamily: 'Consolas, Monaco, "Courier New", monospace',
-            width: '420px', maxHeight: '65vh', overflowY: 'auto', borderRadius: '12px',
+            width: '420px', maxHeight: '85vh', overflowY: 'auto', borderRadius: '12px',
             boxShadow: '0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05)',
-            padding: '0', pointerEvents: 'auto', lineHeight: '1.5', border: '2px solid #23272f',
+            padding: '0', pointerEvents: 'auto', lineHeight: '1.4', border: '3px solid #23272f',
         });
-        logDiv.innerHTML = `
-          <div style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); padding: 16px; border-radius: 12px 12px 0 0; border-bottom: 2px solid #23272f;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <div style="width: 12px; height: 12px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 8px #00ff88;"></div>
-              <span style="font-weight: bold; font-size: 16px; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">無名子自動搶票小幫手</span>
+        logDiv.innerHTML = `          <div style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); padding: 12px; border-radius: 12px 12px 0 0; border-bottom: 2px solid #23272f;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 10px; height: 10px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 6px #00ff88;"></div>
+              <span style="font-weight: bold; font-size: 15px; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">無名子自動搶票小幫手</span>
             </div>
           </div>
-          <div style="padding: 16px; background: rgba(0,0,0,0.2); border-radius: 0 0 12px 12px;">
-            <div style="background: #23272f; border-radius: 8px; padding: 16px; border: 1px solid #23272f; margin-bottom: 16px;">
-              <form id="ticket-helper-form" style="display: grid; gap: 12px;">
-                <div style="display: grid; grid-template-columns: 1fr 80px; gap: 10px; margin-top: 8px;">
-                  <div style="position: relative;">
-                    <label style="display: block; margin-bottom: 4px; background: linear-gradient(90deg, #667eea, #764ba2); padding: 2px 8px; border-radius: 4px; font-size: 14px; color: #fff; width: max-content; text-align: left; position: static; transform: none;">場區</label>
-                    <input id="th-area" type="text" placeholder="場區關鍵字" required style="width: 100%; padding: 10px 12px; background: #23272f; border: 1px solid #333; border-radius: 6px; color: #e0e0e0; font-size: 13px;">
-                  </div>
-                  <div style="position: relative;">
-                    <label style="display: block; margin-bottom: 4px; background: linear-gradient(90deg, #667eea, #764ba2); padding: 2px 8px; border-radius: 4px; font-size: 14px; color: #fff; width: max-content; text-align: left; position: static; transform: none;">數量</label>
-                    <select id="th-qty" style="width: 100%; padding: 10px 40px 10px 8px; background: #23272f; border: 1px solid #333; border-radius: 6px; color: #e0e0e0; font-size: 13px; cursor: pointer; appearance: none; -webkit-appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill=\'white\' height=\'20\' viewBox=\'0 0 24 24\' width=\'20\' xmlns=\'http://www.w3.org/2000/svg\'><path d=\'M7 10l5 5 5-5z\'/></svg>'); background-repeat: no-repeat; background-position: right 10px center; background-size: 20px;">
+          <div style="padding: 12px; background: rgba(0,0,0,0.2); border-radius: 0 0 12px 12px;">            <div style="background: #23272f; border-radius: 10px; padding: 14px; border: 3px solid #667eea; margin-bottom: 12px; box-shadow: 0 4px 16px rgba(102,126,234,0.15);">
+              <div style="color: #667eea; margin-bottom: 10px; font-weight: bold; text-align: center; font-size: 14px; border-bottom: 1px solid #667eea; padding-bottom: 6px;">🎯 搶票設定</div>
+              <form id="ticket-helper-form" style="display: grid; gap: 10px;">
+                <div style="display: grid; grid-template-columns: 1fr 80px; gap: 10px;">                  <div style="position: relative;">
+                    <label style="display: block; margin-bottom: 4px; background: linear-gradient(90deg, #667eea, #764ba2); padding: 2px 8px; border-radius: 4px; font-size: 13px; color: #fff; width: max-content; text-align: left; position: static; transform: none; box-shadow: 0 1px 3px rgba(102,126,234,0.3);">場區</label>
+                    <input id="th-area" type="text" placeholder="場區關鍵字" required style="width: 100%; padding: 10px 12px; background: #1a1e26; border: 2px solid #667eea; border-radius: 6px; color: #e0e0e0; font-size: 13px; transition: border-color 0.3s ease;">
+                  </div>                  <div style="position: relative;">
+                    <label style="display: block; margin-bottom: 4px; background: linear-gradient(90deg, #667eea, #764ba2); padding: 2px 8px; border-radius: 4px; font-size: 13px; color: #fff; width: max-content; text-align: left; position: static; transform: none; box-shadow: 0 1px 3px rgba(102,126,234,0.3);">數量</label>
+                    <select id="th-qty" style="width: 100%; padding: 10px 38px 10px 8px; background: #1a1e26; border: 2px solid #667eea; border-radius: 6px; color: #e0e0e0; font-size: 13px; cursor: pointer; appearance: none; -webkit-appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill=\'white\' height=\'20\' viewBox=\'0 0 24 24\' width=\'20\' xmlns=\'http://www.w3.org/2000/svg\'><path d=\'M7 10l5 5 5-5z\'/></svg>'); background-repeat: no-repeat; background-position: right 10px center; background-size: 18px; transition: border-color 0.3s ease;">
                       <option value="1">1 張</option>
                       <option value="2">2 張</option>
                       <option value="3">3 張</option>
@@ -45,76 +41,145 @@ window.TicketHelperUI = {
                     </select>
                   </div>
                 </div>
-                <div style="display: flex; align-items: center; justify-content: center; padding: 8px; background: rgba(0,255,136,0.1); border: 1px solid #00ff88; border-radius: 6px;">
+                <div style="background: rgba(102,126,234,0.05); border: 2px solid rgba(102,126,234,0.3); border-radius: 8px; padding: 10px;">
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">                    <div style="position: relative;">
+                      <label style="display: block; margin-bottom: 4px; background: linear-gradient(90deg, #667eea, #764ba2); padding: 2px 8px; border-radius: 4px; font-size: 13px; color: #fff; width: max-content; text-align: left; position: static; transform: none; box-shadow: 0 1px 3px rgba(102,126,234,0.3);">演出日期</label>
+                      <input id="th-performance-date" type="date" style="width: 100%; padding: 10px 12px; background: #1a1e26; border: 2px solid #667eea; border-radius: 6px; color: #e0e0e0; font-size: 13px; transition: border-color 0.3s ease;" placeholder="選擇演出日期（可選）" title="選擇演出日期後將自動點擊對應日期的立即訂購按鈕">
+                    </div>
+                    <div style="display: flex; align-items: end;">
+                      <div style="padding: 6px; background: rgba(102,126,234,0.15); border: 1px solid #667eea; border-radius: 6px; font-size: 9px; color: #8b9beb; text-align: center; width: 100%; line-height: 1.2; box-shadow: 0 1px 4px rgba(102,126,234,0.2);">
+                        💡 自動選擇對應日期<br>
+                        <span style="opacity: 0.8;">支援多種格式識別</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div style="background: rgba(0,255,136,0.05); border: 2px solid rgba(0,255,136,0.4); border-radius: 8px; padding: 8px; display: flex; align-items: center; justify-content: center;">
                   <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
                     <input id="th-semi-auto" type="checkbox" style="width: 16px; height: 16px; accent-color: #00ff88;">
-                    <span style="font-size: 13px; color: #00ff88; font-weight: 500;">🤖 半自動模式</span>
+                    <span style="font-size: 13px; color: #00ff88; font-weight: 600;">🤖 半自動模式</span>
                   </label>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px;">
-                  <button id="th-start" type="submit" style="padding: 12px 16px; background: linear-gradient(45deg, #00ff88, #00cc6a); color: #181c24; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; font-size: 15px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,255,136,0.3);">🚀 戰爭開始</button>
-                  <button id="th-stop" type="button" style="padding: 12px 16px; background: linear-gradient(45deg, #ff4757, #ff3742); color: #fff; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; font-size: 15px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(255,71,87,0.3);">❌ 戰爭結束</button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                  <button id="th-start" type="submit" style="padding: 12px 16px; background: linear-gradient(45deg, #00ff88, #00cc6a); color: #181c24; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(0,255,136,0.4); border: 2px solid transparent;">🚀 戰爭開始</button>
+                  <button id="th-stop" type="button" style="padding: 12px 16px; background: linear-gradient(45deg, #ff4757, #ff3742); color: #fff; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(255,71,87,0.4); border: 2px solid transparent;">❌ 戰爭結束</button>
                 </div>
               </form>
             </div>
-            <div style="background: #23272f; border-radius: 8px; padding: 16px; border: 1px solid #23272f; margin-bottom: 16px;">
-              <div style="color: #ffa502; margin-bottom: 12px; font-weight: bold; text-align: center; font-size: 14px;">⏰ 定時搶票</div>
-              <div style="margin-bottom: 12px;">
+            <div style="background: #23272f; border-radius: 10px; padding: 14px; border: 3px solid #ffa502; margin-bottom: 12px; box-shadow: 0 4px 16px rgba(255,165,2,0.15);">
+              <div style="color: #ffa502; margin-bottom: 10px; font-weight: bold; text-align: center; font-size: 14px; border-bottom: 1px solid #ffa502; padding-bottom: 6px;">⏰ 定時搶票</div>
+              <div style="margin-bottom: 10px;">
                 <div style="position: relative;">
-                  <label style="display: block; margin-bottom: 4px; background: linear-gradient(90deg, #667eea, #764ba2); padding: 2px 8px; border-radius: 4px; font-size: 14px; color: #fff; width: max-content; text-align: left; position: static; transform: none;">搶票時間</label>
-                  <input id="th-scheduled-time" type="datetime-local" style="width: 100%; padding: 10px 12px; background: #23272f; border: 1px solid #333; border-radius: 6px; color: #e0e0e0; font-size: 13px;">
+                  <label style="display: block; margin-bottom: 4px; background: linear-gradient(90deg, #ffa502, #ff7675); padding: 2px 8px; border-radius: 4px; font-size: 13px; color: #fff; width: max-content; text-align: left; position: static; transform: none; box-shadow: 0 1px 3px rgba(255,165,2,0.3);">搶票時間</label>
+                  <input id="th-scheduled-time" type="datetime-local" style="width: 100%; padding: 10px 12px; background: #1a1e26; border: 2px solid #ffa502; border-radius: 6px; color: #e0e0e0; font-size: 13px; transition: border-color 0.3s ease;">
                 </div>
               </div>
-              <div id="countdown-display" style="padding: 12px; background: rgba(0,0,0,0.3); border-radius: 6px; text-align: center; margin-bottom: 12px; border: 1px solid #23272f; color: #ccc; font-size: 13px;">請先設定搶票時間</div>
+              <div id="countdown-display" style="padding: 10px; background: rgba(0,0,0,0.4); border-radius: 6px; text-align: center; margin-bottom: 10px; border: 2px solid #333; color: #ccc; font-size: 12px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">請先設定搶票時間</div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <button id="th-start-scheduled" type="button" style="padding: 12px 16px; background: linear-gradient(45deg, #667eea, #764ba2); color: #fff; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; font-size: 15px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(102,126,234,0.3);">⏰ 開始定時</button>
-                <button id="th-stop-scheduled" type="button" style="padding: 12px 16px; background: linear-gradient(45deg, #6c757d, #495057); color: #fff; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; font-size: 15px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(108,117,125,0.3);">❌ 取消定時</button>
+                <button id="th-start-scheduled" type="button" style="padding: 12px 16px; background: linear-gradient(45deg, #667eea, #764ba2); color: #fff; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(102,126,234,0.4); border: 2px solid transparent;">⏰ 開始定時</button>
+                <button id="th-stop-scheduled" type="button" style="padding: 12px 16px; background: linear-gradient(45deg, #6c757d, #495057); color: #fff; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 4px 16px rgba(108,117,125,0.4); border: 2px solid transparent;">❌ 取消定時</button>
               </div>
             </div>
-            <div id="log-container" style="background: #181c24; border-radius: 8px; padding: 12px; max-height: 300px; overflow-y: auto; border: 1px solid #23272f; font-family: Consolas, monospace; font-size: 12px;">
-              <div style="color: #00ff88; margin-bottom: 8px; font-weight: bold;">執行紀錄</div>
+            <div id="log-container" style="background: #181c24; border-radius: 10px; padding: 12px; max-height: 200px; overflow-y: auto; border: 3px solid #00ff88; font-family: Consolas, monospace; font-size: 11px; box-shadow: 0 4px 16px rgba(0,255,136,0.15);">
+              <div style="color: #00ff88; margin-bottom: 8px; font-weight: bold; text-align: center; font-size: 13px; border-bottom: 1px solid #00ff88; padding-bottom: 4px;">📋 執行紀錄</div>
             </div>
           </div>
         `;
         document.body.appendChild(logDiv);
         this.addStyles();
-    },
-
-    // 添加樣式
+    },    // 添加樣式
     addStyles() {
-        // 只保留必要的暗色系樣式，細節可再微調
         const style = document.createElement('style');
         style.textContent = `
             /* 讓日期選擇器小圖示為白色 */
-            #th-scheduled-time::-webkit-calendar-picker-indicator {
+            #th-scheduled-time::-webkit-calendar-picker-indicator,
+            #th-performance-date::-webkit-calendar-picker-indicator {
                 filter: invert(1);
+                cursor: pointer;
             }
+            
+            /* 輸入框 focus 效果 */
             #ticket-helper-log input:focus, #ticket-helper-log select:focus {
                 outline: none;
                 border-color: #00ff88 !important;
-                box-shadow: 0 0 0 2px rgba(0,255,136,0.2) !important;
-                background: #23272f !important;
+                box-shadow: 0 0 0 3px rgba(0,255,136,0.25) !important;
+                background: #1a1e26 !important;
+                transform: scale(1.02);
+                transition: all 0.3s ease;
             }
+            
+            /* 下拉選單選項樣式 */
             #ticket-helper-log select option {
-                background: #23272f !important;
+                background: #1a1e26 !important;
                 color: #e0e0e0 !important;
+                padding: 8px;
             }
+            
+            /* 按鈕 hover 和 active 效果 */
+            #ticket-helper-log button:hover {
+                transform: translateY(-2px) scale(1.05) !important;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.3) !important;
+                transition: all 0.3s ease !important;
+            }
+            
             #ticket-helper-log button:active {
-                transform: translateY(0px) !important;
+                transform: translateY(0px) scale(1.02) !important;
+                transition: all 0.1s ease !important;
             }
+            
+            /* 特定按鈕 hover 效果 */
+            #th-start:hover {
+                box-shadow: 0 8px 30px rgba(0,255,136,0.6) !important;
+            }
+            
+            #th-stop:hover {
+                box-shadow: 0 8px 30px rgba(255,71,87,0.6) !important;
+            }
+            
+            #th-start-scheduled:hover {
+                box-shadow: 0 8px 30px rgba(102,126,234,0.6) !important;
+            }
+            
+            #th-stop-scheduled:hover {
+                box-shadow: 0 8px 30px rgba(108,117,125,0.6) !important;
+            }
+            
+            /* 日誌容器滾動條 */
             #log-container::-webkit-scrollbar {
-                width: 6px;
+                width: 8px;
             }
             #log-container::-webkit-scrollbar-thumb {
-                background: #333 !important;
+                background: linear-gradient(180deg, #00ff88, #00cc6a) !important;
+                border-radius: 4px;
             }
             #log-container::-webkit-scrollbar-track {
-                background: #23272f !important;
+                background: #181c24 !important;
+                border-radius: 4px;
             }
+              /* 動畫效果 */
             @keyframes shake {
                 0%, 100% { transform: translateX(0); }
-                10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
-                20%, 40%, 60%, 80% { transform: translateX(2px); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+                20%, 40%, 60%, 80% { transform: translateX(3px); }
+            }
+            
+            /* Checkbox 樣式增強 */
+            #th-semi-auto {
+                transition: transform 0.2s ease;
+            }
+            
+            #th-semi-auto:checked {
+                transform: scale(1.1);
+            }
+            
+            /* 標籤發光效果 */
+            #ticket-helper-log label[style*="linear-gradient"] {
+                transition: all 0.3s ease;
+            }
+            
+            #ticket-helper-log label[style*="linear-gradient"]:hover {
+                transform: scale(1.05);
+                filter: brightness(1.1);
             }
         `;
         document.head.appendChild(style);
@@ -183,16 +248,24 @@ window.TicketHelperUI = {
         }
         startBtn.innerHTML = '🔄 啟動中...';
         startBtn.style.background = 'linear-gradient(45deg, #ffa502, #ff6348)';
-        startBtn.disabled = true;
-        chrome.storage.local.set({
+        startBtn.disabled = true; chrome.storage.local.set({
             ticketConfig: {
-                areaKeyword, ticketQuantity, isRunning: true, semiAutoMode
+                areaKeyword, ticketQuantity, isRunning: true, semiAutoMode,
+                performanceDate: document.getElementById('th-performance-date').value
             }
         }, () => {
             const mode = semiAutoMode ? '🤖 半自動模式' : '⚡ 全自動模式';
             this.appendLog(`✅ 設定已儲存，流程啟動！(${mode})`, '#00ff88');
             this.appendLog(`🎯 目標場區: ${areaKeyword}`, '#00bfff');
             this.appendLog(`🎫 票券數量: ${ticketQuantity} 張`, '#00bfff');
+
+            const performanceDate = document.getElementById('th-performance-date').value;
+            if (performanceDate) {
+                this.appendLog(`📅 演出日期: ${new Date(performanceDate).toLocaleDateString()}`, '#00bfff');
+            } else {
+                this.appendLog(`📅 演出日期: 未指定（將點擊第一個可用按鈕）`, '#ccc');
+            }
+
             // 立即觸發購票主流程（不 reload）
             if (window.TicketHelperRouter && typeof window.TicketHelperRouter.start === 'function') {
                 window.TicketHelperRouter.start();
@@ -240,10 +313,9 @@ window.TicketHelperUI = {
         p.appendChild(timestampSpan);
         p.appendChild(document.createTextNode(msg));
         logContainer.appendChild(p);
-        logContainer.scrollTop = logContainer.scrollHeight;
-        // 限制日誌條數為5條（含標題）
+        logContainer.scrollTop = logContainer.scrollHeight;        // 限制日誌條數為4條（含標題）
         const logs = logContainer.children;
-        while (logs.length > 6) logContainer.removeChild(logs[1]);
+        while (logs.length > 5) logContainer.removeChild(logs[1]);
     },
     updateCountdownDisplay(text) {
         const display = document.getElementById('countdown-display');
