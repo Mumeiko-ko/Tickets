@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "無名子自動搶票小幫手",
-  "version": "2.0",
+  "version": "2.2.6",
   "description": "使用於拓元售票網的自動化點擊工具",
   "icons": {
     "16": "bird.png",

@@ -42,22 +42,51 @@ class ScheduledTicketing {
         }, 1000);
 
         console.log('定時搶票已啟動，開始倒數計時...');
-    }
-
-    // 執行定時搶票
+    }    // 執行定時搶票
     async executeScheduledTicketing() {
         this.stopCountdown(); try {
             console.log('⏰ 搶票時間到！開始執行自動搶票...');
 
             if (this.callbacks.onStart) {
                 this.callbacks.onStart();
-            }
+            }            // 檢查是否有儲存的搶票設定
+            chrome.storage.local.get(['ticketConfig'], (result) => {
+                if (result.ticketConfig && result.ticketConfig.areaKeyword) {
+                    // 更新設定為運行狀態並啟動主流程
+                    console.log('使用儲存的搶票設定啟動定時搶票...');
 
-            // 觸發現有的搶票流程
-            const form = document.getElementById('ticket-helper-form');
-            if (form) {
-                form.dispatchEvent(new Event('submit'));
-            }
+                    // 設定為運行狀態
+                    const updatedConfig = {
+                        ...result.ticketConfig,
+                        isRunning: true
+                    };
+
+                    chrome.storage.local.set({ ticketConfig: updatedConfig }, () => {
+                        console.log('定時搶票設定已更新為運行狀態');
+                        if (this.mainRouter && typeof this.mainRouter.start === 'function') {
+                            this.mainRouter.start();
+                        } else {
+                            console.error('主流程未載入，無法執行定時搶票');
+                            if (this.callbacks.onError) {
+                                this.callbacks.onError(new Error('主流程未載入'));
+                            }
+                        }
+                    });
+                } else {
+                    // 如果沒有儲存的設定，嘗試觸發表單提交（保留舊邏輯作為備案）
+                    console.log('未找到儲存的搶票設定，嘗試使用表單設定...');
+                    const form = document.getElementById('ticket-helper-form');
+                    if (form) {
+                        form.dispatchEvent(new Event('submit'));
+                    } else {
+                        const errorMsg = '找不到搶票表單且無儲存設定';
+                        console.error(errorMsg);
+                        if (this.callbacks.onError) {
+                            this.callbacks.onError(new Error(errorMsg));
+                        }
+                    }
+                }
+            });
 
         } catch (error) {
             console.log(`定時搶票執行失敗: ${error.message}`);

@@ -10,10 +10,9 @@ window.TicketHelperConstants = {
     },
 
     // DOM選擇器
-    SELECTORS: {
-        // 活動頁
+    SELECTORS: {        // 活動頁
         BUY_BUTTON: '#tab-func li.buy a',
-        ORDER_BUTTONS: 'button',
+        ORDER_BUTTONS: 'button, a[onclick], a[href*="order"], .btn-order, .purchase-btn',
 
         // 區域選擇頁
         AREA_SELECTORS: [
@@ -39,13 +38,8 @@ window.TicketHelperConstants = {
         CONFIRM_BUTTON: 'button.btn-primary',
 
         // 錯誤訊息
-        ERROR_SELECTORS: '.alert-danger, .error, .text-danger, [class*="error"]',
-
-        // 日期選擇按鈕
-        DATE_BUTTONS: 'button.date-item' // 假設日期按鈕的 class 為 date-item
-    },
-
-    // 時間設定
+        ERROR_SELECTORS: '.alert-danger, .error, .text-danger, [class*="error"]'
+    },    // 時間設定
     TIMEOUTS: {
         ELEMENT_WAIT: 5000,
         SHORT_WAIT: 100,
@@ -53,15 +47,17 @@ window.TicketHelperConstants = {
         LONG_WAIT: 1000,
         POPUP_WAIT: 800,
         INPUT_WAIT: 200,
-        SUBMIT_WAIT: 2000
-    },
-
-    // 重試設定
+        SUBMIT_WAIT: 2000,
+        PAGE_LOAD: 1500,
+        CLICK_DELAY: 300
+    },    // 重試設定
     RETRY: {
         INTERVAL: 500,
         SUBMIT_COOLDOWN: 3000,
         MAX_LOG_ENTRIES: 100,
-        OLD_LOG_CLEANUP: 20
+        OLD_LOG_CLEANUP: 20,
+        MAX_DATE_RETRIES: 15,    // 日期選擇最大重試次數
+        MAX_AREA_RETRIES: 10     // 區域選擇最大重試次數
     },
 
     // API設定

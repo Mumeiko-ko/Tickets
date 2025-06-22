@@ -25,18 +25,37 @@ window.TicketHelperUtils = {
                 }
             }, 200);
         });
-    },
-
-    // 將圖片 URL 轉換為 Base64
+    },    // 將圖片 URL 轉換為 Base64
     async imageUrlToBase64(url) {
-        const response = await fetch(url);
-        const blob = await response.blob();
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result.split(',')[1]);
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-        });
+        try {
+            console.log(`[圖片轉換] 正在獲取圖片: ${url}`);
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                console.error(`[圖片轉換] HTTP 錯誤: ${response.status}`);
+                return null;
+            }
+
+            const blob = await response.blob();
+            console.log(`[圖片轉換] 圖片大小: ${blob.size} bytes`);
+
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    const base64 = reader.result.split(',')[1];
+                    console.log(`[圖片轉換] Base64 長度: ${base64.length} 字符`);
+                    resolve(base64);
+                };
+                reader.onerror = (error) => {
+                    console.error('[圖片轉換] FileReader 錯誤:', error);
+                    reject(error);
+                };
+                reader.readAsDataURL(blob);
+            });
+        } catch (error) {
+            console.error('[圖片轉換] 轉換失敗:', error);
+            return null;
+        }
     },
 
     // 檢查元素是否可用（未售完）

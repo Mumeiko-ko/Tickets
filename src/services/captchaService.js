@@ -1,31 +1,43 @@
 // captchaService.js - 驗證碼處理服務
-window.TicketHelperCaptcha = {
-    // 半自動模式處理
+window.TicketHelperCaptcha = {    // 半自動模式處理
     async handleSemiAuto(captchaInput) {
         const constants = window.TicketHelperConstants;
         const utils = window.TicketHelperUtils;
 
         console.log('[半自動模式] 等待您手動輸入驗證碼...');
 
-        await utils.waitForCaptcha(captchaInput, 4);
-        console.log(`[半自動模式] 已輸入驗證碼: ${captchaInput.value}，準備提交`);
+        while (true) {
+            await utils.waitForCaptcha(captchaInput, 4);
+            console.log(`[半自動模式] 已輸入驗證碼: ${captchaInput.value}，準備提交`);
 
-        const confirmButton = utils.findConfirmButton();
-        if (confirmButton) {
-            console.log('[半自動模式] 自動點擊「確認張數」按鈕');
-            confirmButton.click();
+            const confirmButton = utils.findConfirmButton();
+            if (confirmButton) {
+                console.log('[半自動模式] 自動點擊「確認張數」按鈕');
+                confirmButton.click();
 
-            await utils.sleep(constants.TIMEOUTS.SUBMIT_WAIT);
+                await utils.sleep(constants.TIMEOUTS.SUBMIT_WAIT);
 
-            if (utils.hasErrorMessage() || window.location.pathname.includes(constants.PATHS.TICKET_PAGE)) {
-                console.log('[半自動模式] 驗證碼錯誤，請重新輸入');
-                captchaInput.value = '';
-                await this.handleSemiAuto(captchaInput);
+                // 檢查是否成功跳轉到下一頁或完成流程
+                if (utils.hasErrorMessage()) {
+                    console.log('[半自動模式] 驗證碼錯誤，請重新輸入');
+                    captchaInput.value = '';
+                    captchaInput.focus();
+                    continue; // 使用 continue 而非遞迴調用
+                } else if (window.location.pathname.includes(constants.PATHS.TICKET_PAGE)) {
+                    console.log('[半自動模式] 仍在票務頁面，可能需要重新嘗試');
+                    captchaInput.value = '';
+                    captchaInput.focus();
+                    continue;
+                } else {
+                    console.log('[半自動模式] 提交成功！');
+                    return; // 成功完成
+                }
             } else {
-                console.log('[半自動模式] 提交成功！');
+                console.log('[半自動模式] 找不到確認按鈕，請手動點擊');
+                await utils.sleep(constants.TIMEOUTS.MEDIUM_WAIT);
+                // 重新檢查按鈕
+                continue;
             }
-        } else {
-            console.log('[半自動模式] 找不到確認按鈕，請手動點擊');
         }
     },
 
@@ -45,11 +57,15 @@ window.TicketHelperCaptcha = {
                     console.log('[全自動模式] 等待驗證碼圖片載入...');
                     await utils.sleep(constants.TIMEOUTS.MEDIUM_WAIT);
                     continue;
-                }
-
-                console.log('[全自動模式] 快速識別驗證碼中...');
+                } console.log('[全自動模式] 快速識別驗證碼中...');
                 const imageUrl = new URL(captchaImage.src, window.location.origin).href;
+                console.log(`[全自動模式] 驗證碼圖片 URL: ${imageUrl}`);
+
                 const imageBase64 = await utils.imageUrlToBase64(imageUrl);
+                if (!imageBase64) {
+                    console.log('[全自動模式] 圖片轉換 Base64 失敗，跳過此次識別');
+                    continue;
+                }
 
                 const response = await fetch(constants.API.CAPTCHA_URL, {
                     method: 'POST',
@@ -70,9 +86,7 @@ window.TicketHelperCaptcha = {
                         captchaInput.dispatchEvent(new Event('input', { bubbles: true }));
                         captchaInput.dispatchEvent(new Event('change', { bubbles: true }));
 
-                        await utils.sleep(constants.TIMEOUTS.INPUT_WAIT);
-
-                        // 提交
+                        await utils.sleep(constants.TIMEOUTS.INPUT_WAIT);                        // 提交
                         const confirmButton = utils.findConfirmButton();
                         if (confirmButton) {
                             console.log('[全自動模式] 立即點擊「確認張數」按鈕！');
@@ -81,8 +95,11 @@ window.TicketHelperCaptcha = {
                             await utils.sleep(constants.TIMEOUTS.SUBMIT_WAIT);
 
                             // 檢查結果
-                            if (utils.hasErrorMessage() || window.location.pathname.includes(constants.PATHS.TICKET_PAGE)) {
-                                console.log('[全自動模式] 驗證碼可能錯誤，清空輸入框並重新識別');
+                            if (utils.hasErrorMessage()) {
+                                console.log('[全自動模式] 驗證碼錯誤，清空輸入框並重新識別');
+                                captchaInput.value = '';
+                            } else if (window.location.pathname.includes(constants.PATHS.TICKET_PAGE)) {
+                                console.log('[全自動模式] 仍在票務頁面，繼續嘗試');
                                 captchaInput.value = '';
                             } else {
                                 console.log('[全自動模式] 提交成功，頁面已跳轉！');

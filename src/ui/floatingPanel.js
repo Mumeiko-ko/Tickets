@@ -27,11 +27,14 @@ window.TicketHelperUI = {
           </div>
           <div style="padding: 12px; background: rgba(0,0,0,0.2); border-radius: 0 0 12px 12px;">            <div style="background: #23272f; border-radius: 10px; padding: 14px; border: 3px solid #667eea; margin-bottom: 12px; box-shadow: 0 4px 16px rgba(102,126,234,0.15);">
               <div style="color: #667eea; margin-bottom: 10px; font-weight: bold; text-align: center; font-size: 14px; border-bottom: 1px solid #667eea; padding-bottom: 6px;">🎯 搶票設定</div>
-              <form id="ticket-helper-form" style="display: grid; gap: 10px;">
-                <div style="display: grid; grid-template-columns: 1fr 80px; gap: 10px;">                  <div style="position: relative;">
+              <form id="ticket-helper-form" style="display: grid; gap: 10px;">                <div style="display: grid; grid-template-columns: 1fr 80px; gap: 10px;">                  <div style="position: relative;">
                     <label style="display: block; margin-bottom: 4px; background: linear-gradient(90deg, #667eea, #764ba2); padding: 2px 8px; border-radius: 4px; font-size: 13px; color: #fff; width: max-content; text-align: left; position: static; transform: none; box-shadow: 0 1px 3px rgba(102,126,234,0.3);">場區</label>
                     <input id="th-area" type="text" placeholder="場區關鍵字" required style="width: 100%; padding: 10px 12px; background: #1a1e26; border: 2px solid #667eea; border-radius: 6px; color: #e0e0e0; font-size: 13px; transition: border-color 0.3s ease;">
-                  </div>                  <div style="position: relative;">
+                    <div style="margin-top: 4px; padding: 4px 6px; background: rgba(102,126,234,0.1); border: 1px solid rgba(102,126,234,0.3); border-radius: 4px; font-size: 8px; color: #8b9beb; text-align: center; line-height: 1.2;">
+                      🎯 僅選擇關鍵字匹配場區<br>
+                      <span style="opacity: 0.8;">避免誤選其他場區</span>
+                    </div>
+                  </div><div style="position: relative;">
                     <label style="display: block; margin-bottom: 4px; background: linear-gradient(90deg, #667eea, #764ba2); padding: 2px 8px; border-radius: 4px; font-size: 13px; color: #fff; width: max-content; text-align: left; position: static; transform: none; box-shadow: 0 1px 3px rgba(102,126,234,0.3);">數量</label>
                     <select id="th-qty" style="width: 100%; padding: 10px 38px 10px 8px; background: #1a1e26; border: 2px solid #667eea; border-radius: 6px; color: #e0e0e0; font-size: 13px; cursor: pointer; appearance: none; -webkit-appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill=\'white\' height=\'20\' viewBox=\'0 0 24 24\' width=\'20\' xmlns=\'http://www.w3.org/2000/svg\'><path d=\'M7 10l5 5 5-5z\'/></svg>'); background-repeat: no-repeat; background-position: right 10px center; background-size: 18px; transition: border-color 0.3s ease;">
                       <option value="1">1 張</option>
@@ -45,11 +48,10 @@ window.TicketHelperUI = {
                   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">                    <div style="position: relative;">
                       <label style="display: block; margin-bottom: 4px; background: linear-gradient(90deg, #667eea, #764ba2); padding: 2px 8px; border-radius: 4px; font-size: 13px; color: #fff; width: max-content; text-align: left; position: static; transform: none; box-shadow: 0 1px 3px rgba(102,126,234,0.3);">演出日期</label>
                       <input id="th-performance-date" type="date" style="width: 100%; padding: 10px 12px; background: #1a1e26; border: 2px solid #667eea; border-radius: 6px; color: #e0e0e0; font-size: 13px; transition: border-color 0.3s ease;" placeholder="選擇演出日期（可選）" title="選擇演出日期後將自動點擊對應日期的立即訂購按鈕">
-                    </div>
-                    <div style="display: flex; align-items: end;">
+                    </div>                    <div style="display: flex; align-items: end;">
                       <div style="padding: 6px; background: rgba(102,126,234,0.15); border: 1px solid #667eea; border-radius: 6px; font-size: 9px; color: #8b9beb; text-align: center; width: 100%; line-height: 1.2; box-shadow: 0 1px 4px rgba(102,126,234,0.2);">
                         💡 自動選擇對應日期<br>
-                        <span style="opacity: 0.8;">支援多種格式識別</span>
+                        <span style="opacity: 0.8;">無限重試直到成功</span>
                       </div>
                     </div>
                   </div>
@@ -312,10 +314,9 @@ window.TicketHelperUI = {
         timestampSpan.style.fontSize = '11px';
         p.appendChild(timestampSpan);
         p.appendChild(document.createTextNode(msg));
-        logContainer.appendChild(p);
-        logContainer.scrollTop = logContainer.scrollHeight;        // 限制日誌條數為4條（含標題）
+        logContainer.appendChild(p); logContainer.scrollTop = logContainer.scrollHeight;        // 限制日誌條數為6條（含標題）
         const logs = logContainer.children;
-        while (logs.length > 5) logContainer.removeChild(logs[1]);
+        while (logs.length > 7) logContainer.removeChild(logs[1]);
     },
     updateCountdownDisplay(text) {
         const display = document.getElementById('countdown-display');
@@ -335,13 +336,41 @@ window.TicketHelperUI = {
         const rawErr = console.error;
         console.log = (...args) => { this.appendLog(args.join(' ')); rawLog.apply(console, args); };
         console.error = (...args) => { this.appendLog(args.join(' '), '#ff7070'); rawErr.apply(console, args); };
-    },
-
-    // 定時搶票初始化
+    },    // 定時搶票初始化
     initializeScheduledTicketing(targetTime) {
         try {
             if (!window.TimeSync) return this.appendLog('❌ 時間同步服務未載入', '#ff7070');
             if (!window.ScheduledTicketing) return this.appendLog('❌ 定時搶票服務未載入', '#ff7070');
+
+            // 獲取當前搶票設定並保存
+            const areaKeyword = document.getElementById('th-area').value.trim();
+            const ticketQuantity = document.getElementById('th-qty').value;
+            const semiAutoMode = document.getElementById('th-semi-auto').checked;
+            const performanceDate = document.getElementById('th-performance-date').value;
+
+            if (!areaKeyword) {
+                this.appendLog('❌ 請先輸入場區關鍵字再設定定時搶票！', '#ff7070');
+                return;
+            }
+
+            // 保存搶票設定到 Chrome Storage
+            chrome.storage.local.set({
+                ticketConfig: {
+                    areaKeyword,
+                    ticketQuantity,
+                    isRunning: false, // 定時搶票時先不設為運行狀態
+                    semiAutoMode,
+                    performanceDate
+                }
+            }, () => {
+                this.appendLog(`✅ 搶票設定已保存用於定時執行`, '#00bfff');
+                this.appendLog(`🎯 場區關鍵字: ${areaKeyword}`, '#00bfff');
+                this.appendLog(`🎫 票券數量: ${ticketQuantity} 張`, '#00bfff');
+                if (performanceDate) {
+                    this.appendLog(`📅 演出日期: ${new Date(performanceDate).toLocaleDateString()}`, '#00bfff');
+                }
+            });
+
             if (!window.timeSync) window.timeSync = new window.TimeSync();
             if (!window.scheduledTicketing) window.scheduledTicketing = new window.ScheduledTicketing(window.timeSync, window.TicketHelperRouter);
             window.scheduledTicketing.setScheduledTime(targetTime);
@@ -362,6 +391,7 @@ window.TicketHelperUI = {
                 onError: (error) => {
                     this.updateCountdownDisplay('❌ 執行失敗');
                     this.appendLog(`❌ 定時搶票執行失敗: ${error.message}`, '#ff7070');
+                    this.appendLog(`錯誤詳情: ${error}`, '#ff7070');
                 }
             });
             this.appendLog(`✅ 定時搶票已設定: ${new Date(targetTime).toLocaleString()}`, '#00ff88');

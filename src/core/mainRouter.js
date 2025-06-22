@@ -106,17 +106,51 @@ window.TicketHelperRouter = {
                 console.log("[活動頁] 使用演出日期選擇服務");
                 await window.TicketHelperDateSelection.handle(config);
             } else {
-                // 沒有設定日期或服務未載入，使用原有邏輯
+                // 沒有設定日期或服務未載入，使用原有邏輯（含過濾機制）
                 console.log("[活動頁] 使用預設「立即訂購」邏輯");
-                const orderButtons = Array.from(document.querySelectorAll(constants.SELECTORS.ORDER_BUTTONS))
-                    .filter(btn => btn.textContent &&
-                        btn.textContent.replace(/\s+/g, '').includes(constants.TEXT.ORDER_BUTTON_TEXT)
-                    );
+
+                // 取得所有可能的訂購按鈕
+                const allButtons = Array.from(document.querySelectorAll('button, a, input[type="button"], input[type="submit"]'));
+
+                // 過濾出購票相關按鈕
+                let orderButtons = allButtons.filter(btn => {
+                    const text = (btn.textContent || btn.value || '').trim();
+                    return text.includes('立即訂購') ||
+                        text.includes('立即購票') ||
+                        text.includes('購買') ||
+                        text.includes('買票');
+                });
+
+                // 排除不相關的連結（與 dateSelection.js 一致）
+                orderButtons = orderButtons.filter(btn => {
+                    const text = (btn.textContent || btn.value || '').trim();
+                    const href = btn.href || '';
+
+                    // 排除明顯不相關的連結
+                    const excludePatterns = [
+                        '訂單查詢', '查詢訂單', '訂單明細',
+                        '會員', '登入', '註冊', '客服', '幫助',
+                        '關於', '聯絡', '首頁', '回上頁', '返回',
+                        'logout', 'login', 'member', 'help', 'about',
+                        'contact', 'home', 'query', 'search',
+                        '已售完', '售完', '停售'
+                    ];
+
+                    // 檢查文字和 href 是否包含排除關鍵字
+                    for (const pattern of excludePatterns) {
+                        if (text.toLowerCase().includes(pattern.toLowerCase()) ||
+                            href.toLowerCase().includes(pattern.toLowerCase())) {
+                            console.log(`[活動頁] 過濾掉不相關連結: "${text}"`);
+                            return false;
+                        }
+                    }
+                    return true;
+                });
 
                 let clicked = false;
                 for (const btn of orderButtons) {
                     if (!btn.disabled && btn.offsetParent !== null) {
-                        console.log("[活動頁] 點擊第一個可用的 '立即訂購' 按鈕。");
+                        console.log(`[活動頁] 點擊「立即訂購」按鈕: "${btn.textContent?.trim()}"`);
                         btn.click();
                         clicked = true;
                         break;
