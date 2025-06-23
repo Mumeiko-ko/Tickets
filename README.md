@@ -47,7 +47,7 @@ python api_server.py
 
 ## 使用教學
 
-(https://github.com/Mumeiko-ko/image/raw/main/03.png)
+![](https://github.com/Mumeiko-ko/image/raw/main/03.png)
 
 1. 啟動驗證碼 API（終端顯示 9988）
 2. 登入拓元售票網，點右上角擴充功能圖示
