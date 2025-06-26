@@ -18,8 +18,13 @@ window.TicketHelperDateSelection = {
 
         console.log(`[日期選擇] 尋找演出日期: ${config.performanceDate} (重試次數: ${this.retryCount}/${this.maxRetries})`);
 
-        // 等待頁面載入完成
-        await utils.sleep(constants.TIMEOUTS.PAGE_LOAD);        // 查找所有立即訂購按鈕
+        // 等待關鍵元素出現，而不是固定等待，以提升速度
+        console.log('[日期選擇] 等待日期選擇區塊載入...');
+        const orderButtonContainerSelector = 'a[onclick*="order"], .btn-order, table, .show-time, .performance-list';
+        await utils.waitForElement(orderButtonContainerSelector, constants.TIMEOUTS.ELEMENT_WAIT);
+        console.log('[日期選擇] 日期選擇區塊已載入');
+
+        // 查找所有立即訂購按鈕
         const orderButtons = this.findOrderButtons();
 
         if (orderButtons.length === 0) {
@@ -261,31 +266,41 @@ window.TicketHelperDateSelection = {
     findButtonByDate(buttons, targetDate) {
         const target = new Date(targetDate);
         const targetDateStr = this.formatDate(target);
+        const textCache = new Map(); // 建立快取以避免重複讀取相同容器的文字內容
 
         console.log(`[日期選擇] 目標日期格式: ${targetDateStr} (${target.toLocaleDateString()})`);
 
         for (const button of buttons) {
             // 擴大搜尋範圍，特別針對表格結構
             const containers = [
-                button.closest('tr'),                                    // 表格行
-                button.closest('div, td, li, .item, .date-item'),       // 一般容器
-                button.closest('.show-info, .event-row, .performance'), // 演出資訊容器
-                button.parentElement,                                    // 直接父元素
-                button                                                   // 按鈕本身
-            ].filter(Boolean); // 過濾掉 null 值
+                button.closest('tr'), // 表格行
+                button.closest('.show-info, .event-row, .performance, .item, .date-item'), // 常見的演出資訊容器
+                button.parentElement // 直接父元素
+            ].filter(Boolean);
 
-            for (const container of containers) {
-                const fullText = container.textContent || '';
+            // 使用 Set 避免重複處理相同的容器
+            for (const container of new Set(containers)) {
+                let fullText;
+                if (textCache.has(container)) {
+                    fullText = textCache.get(container);
+                } else {
+                    fullText = container.textContent || '';
+                    textCache.set(container, fullText);
+                }
 
-                console.log(`[日期選擇] 檢查容器文字: "${fullText.trim().substring(0, 100)}..."`);
+                // 快速檢查，如果文字中連年份或月日都不包含，就跳過耗時的正則表達式解析
+                const targetMonth = (target.getMonth() + 1).toString();
+                const targetDay = target.getDate().toString();
+                if (!fullText.includes(target.getFullYear().toString()) && !(fullText.includes(targetMonth) && fullText.includes(targetDay))) {
+                    continue;
+                }
 
                 // 提取可能的日期格式
                 const dateMatches = this.extractDatesFromText(fullText);
-
                 for (const dateMatch of dateMatches) {
                     if (this.isSameDate(dateMatch, target)) {
                         console.log(`[日期選擇] 匹配成功！目標: ${targetDateStr}, 找到: ${this.formatDate(dateMatch)}`);
-                        console.log(`[日期選擇] 匹配的完整文字: "${fullText.trim()}"`);
+                        console.log(`[日期選擇] 匹配的容器文字: "${fullText.trim().substring(0, 150)}..."`);
                         return button;
                     }
                 }
@@ -312,8 +327,6 @@ window.TicketHelperDateSelection = {
     },    // 從文字中提取日期
     extractDatesFromText(text) {
         const dates = [];
-
-        console.log(`[日期選擇] 正在解析文字: "${text.substring(0, 200)}..."`);
 
         // 各種日期格式的正則表達式，針對拓元售票網優化
         const patterns = [
@@ -371,7 +384,7 @@ window.TicketHelperDateSelection = {
                 const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
                 if (!isNaN(date.getTime())) {
                     dates.push(date);
-                    console.log(`[日期選擇] 提取到日期: ${this.formatDate(date)} (格式: ${type}, 原文: "${match[0]}")`);
+                    // console.log(`[日期選擇] 提取到日期: ${this.formatDate(date)} (格式: ${type}, 原文: "${match[0]}")`); // 註解掉以提升效能
                 }
             }
         });
